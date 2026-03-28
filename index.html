@@ -7,1213 +7,1450 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0c0b">
-<title>Galu 2026 — Zero-Gap Operating System</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Galu 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0c0b;
-    --bg2: #111410;
-    --bg3: #181c16;
-    --teal: #1dbe8a;
-    --teal-dim: #0f6e50;
-    --teal-glow: rgba(29,190,138,0.12);
-    --amber: #e8a030;
-    --amber-dim: rgba(232,160,48,0.15);
-    --red: #e05050;
-    --red-dim: rgba(224,80,80,0.12);
-    --purple: #9b7fe8;
-    --purple-dim: rgba(155,127,232,0.12);
-    --blue: #4a9fe8;
-    --blue-dim: rgba(74,159,232,0.12);
-    --pink: #e87faa;
-    --pink-dim: rgba(232,127,170,0.12);
-    --green: #6dbf60;
-    --green-dim: rgba(109,191,96,0.12);
-    --gray: #888;
-    --border: rgba(255,255,255,0.06);
-    --text: #e8ede8;
-    --text2: #8a9488;
-    --text3: #4a5448;
-    --font-head: 'Syne', sans-serif;
-    --font-mono: 'Space Mono', monospace;
-  }
+:root {
+  --bg:#0a0c0b; --bg2:#111410; --bg3:#181c16; --bg4:#1e231b;
+  --teal:#1dbe8a; --teal-dim:#0f6e50; --teal-glow:rgba(29,190,138,0.1);
+  --amber:#e8a030; --red:#e05050; --purple:#9b7fe8; --blue:#4a9fe8;
+  --pink:#e87faa; --green:#6dbf60;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+  --text:#e8ede8; --text2:#8a9488; --text3:#4a5448;
+  --font-head:'Syne',sans-serif; --font-mono:'Space Mono',monospace;
+  --r:8px; --r-sm:5px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(29,190,138,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(29,190,138,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+/* LOCK */
+#lock{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem;}
+#lock::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(29,190,138,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(29,190,138,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+.lock-box{position:relative;width:100%;max-width:340px;text-align:center;}
+.lock-title{font-family:var(--font-head);font-size:2.8rem;font-weight:800;color:var(--teal);letter-spacing:-0.02em;}
+.lock-sub{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);margin:0.2rem 0 2rem;}
+.lock-lbl{font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text3);text-align:left;margin-bottom:0.5rem;}
+#pw-in{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font-mono);font-size:16px;padding:0.85rem 1rem;outline:none;letter-spacing:0.08em;margin-bottom:0.75rem;transition:border-color 0.2s;-webkit-appearance:none;}
+#pw-in:focus{border-color:var(--teal);}
+#pw-in.err{animation:shake 0.4s;border-color:var(--red);}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+#pw-btn{width:100%;background:var(--teal);border:none;border-radius:var(--r);color:var(--bg);font-family:var(--font-head);font-size:0.85rem;font-weight:800;letter-spacing:0.1em;padding:0.9rem;cursor:pointer;-webkit-appearance:none;}
+#pw-btn:active{opacity:0.8;transform:scale(0.98);}
+#pw-msg{font-size:0.62rem;color:var(--red);margin-top:0.5rem;min-height:1rem;}
+#main{display:none;position:relative;z-index:1;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-mono);
-    min-height: 100vh;
-    overflow-x: hidden;
-    -webkit-text-size-adjust: 100%;
-  }
+/* LAYOUT */
+.app{max-width:1000px;margin:0 auto;padding:1.25rem 1rem 5rem;}
 
-  /* PASSWORD SCREEN */
-  #lock-screen {
-    position:fixed; inset:0;
-    background:var(--bg);
-    z-index:9999;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    padding:2rem;
-  }
-  #lock-screen::before {
-    content:''; position:absolute; inset:0;
-    background-image:
-      linear-gradient(rgba(29,190,138,0.03) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(29,190,138,0.03) 1px,transparent 1px);
-    background-size:40px 40px; pointer-events:none;
-  }
-  .lock-inner { position:relative; width:100%; max-width:360px; text-align:center; }
-  .lock-logo { font-family:var(--font-head); font-size:3rem; font-weight:800; color:var(--teal); letter-spacing:-0.02em; margin-bottom:0.2rem; }
-  .lock-sub { font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text3); margin-bottom:2.5rem; }
-  .lock-icon { font-size:2rem; margin-bottom:1.5rem; display:block; opacity:0.4; }
-  .lock-label { font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); margin-bottom:0.6rem; text-align:left; }
-  #pw-input {
-    width:100%; background:var(--bg2); border:1px solid var(--border);
-    border-radius:6px; color:var(--text); font-family:var(--font-mono);
-    font-size:1rem; padding:0.85rem 1rem; outline:none;
-    letter-spacing:0.1em; margin-bottom:0.75rem;
-    transition:border-color 0.2s; -webkit-appearance:none;
-  }
-  #pw-input:focus { border-color:var(--teal); }
-  #pw-input.shake { animation:shake 0.4s ease; border-color:var(--red); }
-  @keyframes shake {
-    0%,100%{transform:translateX(0);}
-    20%{transform:translateX(-8px);} 40%{transform:translateX(8px);}
-    60%{transform:translateX(-5px);} 80%{transform:translateX(5px);}
-  }
-  #pw-btn {
-    width:100%; background:var(--teal); border:none; border-radius:6px;
-    color:var(--bg); font-family:var(--font-head); font-size:0.85rem;
-    font-weight:700; letter-spacing:0.1em; padding:0.9rem;
-    cursor:pointer; transition:opacity 0.15s,transform 0.1s; -webkit-appearance:none;
-  }
-  #pw-btn:active { opacity:0.8; transform:scale(0.98); }
-  #pw-error { font-size:0.62rem; color:var(--red); margin-top:0.6rem; min-height:1rem; letter-spacing:0.05em; }
-  #app-content { display:none; }
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:1.25rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.hdr-l h1{font-family:var(--font-head);font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;color:var(--teal);letter-spacing:-0.02em;line-height:1;}
+.hdr-l .sub{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);margin-top:3px;}
+.clock-box{text-align:right;}
+.clock-time{display:block;font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:var(--teal);}
+.clock-day{font-size:0.6rem;color:var(--text3);letter-spacing:0.05em;}
 
-  /* GRID TEXTURE */
-  body::before {
-    content:'';
-    position:fixed;
-    inset:0;
-    background-image:
-      linear-gradient(rgba(29,190,138,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(29,190,138,0.025) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events:none;
-    z-index:0;
-  }
+/* QUOTE BAR */
+.quote-bar{background:var(--teal-glow);border:1px solid var(--teal-dim);border-radius:var(--r-sm);padding:0.7rem 1rem;font-size:0.72rem;color:var(--teal);font-style:italic;margin-bottom:1rem;line-height:1.5;cursor:pointer;}
+.quote-bar span{font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-dim);display:block;margin-bottom:3px;}
 
-  .app { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:2rem 1.5rem; }
+/* NAV */
+.nav-wrap{overflow-x:auto;margin-bottom:1.25rem;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.nav-wrap::-webkit-scrollbar{display:none;}
+.nav{display:flex;gap:0.35rem;white-space:nowrap;padding-bottom:2px;}
+.nb{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.45rem 0.9rem;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;border-radius:3px;transition:all 0.15s;white-space:nowrap;}
+.nb:hover{border-color:var(--teal);color:var(--teal);}
+.nb.active{background:var(--teal);border-color:var(--teal);color:var(--bg);font-weight:700;}
 
-  /* HEADER */
-  .header {
-    display:flex; align-items:flex-start; justify-content:space-between;
-    padding-bottom:2rem;
-    border-bottom:1px solid var(--border);
-    margin-bottom:2rem;
-  }
-  .header-left h1 {
-    font-family: var(--font-head);
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight:800;
-    letter-spacing:-0.02em;
-    line-height:1;
-    color: var(--teal);
-  }
-  .header-left .subtitle {
-    font-size:0.7rem;
-    color:var(--text2);
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    margin-top:0.4rem;
-  }
-  .clock {
-    text-align:right;
-    font-size:0.65rem;
-    color:var(--text3);
-    letter-spacing:0.1em;
-  }
-  .clock .time-big {
-    display:block;
-    font-size:1.4rem;
-    font-weight:700;
-    color:var(--teal);
-    letter-spacing:0.05em;
-  }
-  .clock .day-label { color:var(--text2); margin-top:2px; }
+/* SECTIONS */
+.sec{display:none;}
+.sec.active{display:block;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
-  /* NAV TABS */
-  .nav {
-    display:flex; gap:0.4rem; flex-wrap:wrap;
-    margin-bottom:1.5rem;
-  }
-  .nav-btn {
-    font-family:var(--font-mono);
-    font-size:0.65rem;
-    letter-spacing:0.15em;
-    text-transform:uppercase;
-    padding:0.45rem 1rem;
-    border:1px solid var(--border);
-    background:transparent;
-    color:var(--text2);
-    cursor:pointer;
-    border-radius:3px;
-    transition:all 0.15s;
-  }
-  .nav-btn:hover { border-color:var(--teal); color:var(--teal); }
-  .nav-btn.active {
-    background:var(--teal);
-    border-color:var(--teal);
-    color:var(--bg);
-    font-weight:700;
-  }
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:0.85rem;}
+.card-title{font-family:var(--font-head);font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);margin-bottom:1rem;}
 
-  /* SECTIONS */
-  .section { display:none; }
-  .section.active { display:block; }
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.75rem;margin-bottom:1rem;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:0.85rem;}
+.stat-lbl{font-size:0.53rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.stat-val{font-family:var(--font-head);font-size:1.5rem;font-weight:800;color:var(--teal);line-height:1;}
+.stat-sub{font-size:0.58rem;color:var(--text3);margin-top:3px;}
 
-  /* MANTRA STRIP */
-  .mantra-strip {
-    background: var(--teal-glow);
-    border:1px solid var(--teal-dim);
-    border-radius:4px;
-    padding:0.75rem 1.25rem;
-    font-size:0.75rem;
-    color:var(--teal);
-    letter-spacing:0.05em;
-    margin-bottom:1.5rem;
-    font-style:italic;
-  }
+/* BUTTONS */
+.btn{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.55rem 1.1rem;border:1px solid var(--teal);background:transparent;color:var(--teal);border-radius:var(--r-sm);cursor:pointer;transition:all 0.15s;}
+.btn:hover{background:var(--teal);color:var(--bg);}
+.btn:active{transform:scale(0.97);}
+.btn-sm{font-size:0.58rem;padding:0.4rem 0.8rem;}
+.btn-red{border-color:var(--red);color:var(--red);}
+.btn-red:hover{background:var(--red);color:var(--bg);}
+.btn-solid{background:var(--teal);color:var(--bg);border-color:var(--teal);}
+.btn-solid:hover{opacity:0.85;}
 
-  /* SCHEDULE */
-  .day-nav {
-    display:flex; gap:0.35rem; margin-bottom:1.25rem; flex-wrap:wrap;
-  }
-  .day-btn {
-    font-family:var(--font-mono);
-    font-size:0.6rem;
-    letter-spacing:0.15em;
-    text-transform:uppercase;
-    padding:0.4rem 0.9rem;
-    border:1px solid var(--border);
-    background:transparent;
-    color:var(--text2);
-    cursor:pointer;
-    border-radius:3px;
-    transition:all 0.15s;
-  }
-  .day-btn:hover { border-color:var(--teal); color:var(--teal); }
-  .day-btn.active { background:var(--bg3); border-color:var(--teal); color:var(--teal); }
+/* INPUTS */
+input[type=text],input[type=number],input[type=date],textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:var(--font-mono);font-size:0.75rem;padding:0.6rem 0.8rem;outline:none;transition:border-color 0.2s;-webkit-appearance:none;width:100%;}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,textarea:focus,select:focus{border-color:var(--teal);}
+textarea{resize:vertical;min-height:80px;line-height:1.6;}
+select option{background:var(--bg3);}
+label{font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:4px;}
 
-  .schedule-table { width:100%; border-collapse:collapse; }
-  .schedule-table thead th {
-    font-family:var(--font-head);
-    font-size:0.7rem;
-    font-weight:700;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--text2);
-    padding:0.6rem 0.8rem;
-    border-bottom:1px solid var(--border);
-    text-align:left;
-  }
-  .schedule-table thead th:first-child { width:90px; }
+/* FORM ROW */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;}
+.form-group{margin-bottom:0.75rem;}
+@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
 
-  .time-row { transition: background 0.15s; }
-  .time-row:hover { background: rgba(255,255,255,0.02); }
-  .time-row.current-block { background: rgba(29,190,138,0.05); }
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:0.68rem;}
+.tbl th{font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:left;font-weight:400;}
+.tbl td{padding:0.6rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text2);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(255,255,255,0.02);}
+.tbl tr:last-child td{border-bottom:none;}
 
-  .time-cell {
-    font-family:var(--font-mono);
-    font-size:0.6rem;
-    color:var(--text3);
-    padding:0.55rem 0.8rem;
-    border-right:1px solid var(--border);
-    white-space:nowrap;
-    vertical-align:top;
-  }
-  .time-row.current-block .time-cell { color:var(--teal); }
+/* PROGRESS BAR */
+.prog-track{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin:4px 0;}
+.prog-fill{height:100%;border-radius:99px;transition:width 0.5s ease;}
 
-  .block-cell {
-    padding:0.55rem 0.8rem;
-    border-bottom:1px solid rgba(255,255,255,0.03);
-  }
-  .block-name {
-    font-family:var(--font-head);
-    font-size:0.78rem;
-    font-weight:600;
-    line-height:1.3;
-  }
-  .block-sub {
-    font-size:0.58rem;
-    margin-top:2px;
-    opacity:0.6;
-    font-style:italic;
-  }
+/* PILLS */
+.pill{display:inline-block;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;font-weight:700;}
+.pill-teal{background:rgba(29,190,138,0.15);color:var(--teal);}
+.pill-amber{background:rgba(232,160,48,0.15);color:var(--amber);}
+.pill-red{background:rgba(224,80,80,0.15);color:var(--red);}
+.pill-purple{background:rgba(155,127,232,0.15);color:var(--purple);}
+.pill-blue{background:rgba(74,159,232,0.15);color:var(--blue);}
+.pill-pink{background:rgba(232,127,170,0.15);color:var(--pink);}
+.pill-green{background:rgba(109,191,96,0.15);color:var(--green);}
 
-  /* Category colors */
-  .cat-deepwork  { color:#1dbe8a; }
-  .cat-admin     { color:#4a9fe8; }
-  .cat-fitness   { color:#e8a030; }
-  .cat-language  { color:#9b7fe8; }
-  .cat-buffer    { color:#888; }
-  .cat-relation  { color:#e87faa; }
-  .cat-meal      { color:#6dbf60; }
-  .cat-sleep     { color:#607060; }
-  .cat-recovery  { color:#888; }
-  .cat-planning  { color:#e05050; }
-  .cat-personal  { color:#9b7fe8; }
-  .cat-finance   { color:#e8a030; }
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--border);margin:1rem 0;}
 
-  .block-pill {
-    display:inline-block;
-    font-size:0.5rem;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    padding:1px 6px;
-    border-radius:2px;
-    margin-bottom:3px;
-    font-weight:700;
-  }
-  .pill-deepwork  { background:rgba(29,190,138,0.15); color:#1dbe8a; }
-  .pill-admin     { background:rgba(74,159,232,0.15); color:#4a9fe8; }
-  .pill-fitness   { background:rgba(232,160,48,0.15); color:#e8a030; }
-  .pill-language  { background:rgba(155,127,232,0.15); color:#9b7fe8; }
-  .pill-buffer    { background:rgba(136,136,136,0.12); color:#888; }
-  .pill-relation  { background:rgba(232,127,170,0.15); color:#e87faa; }
-  .pill-meal      { background:rgba(109,191,96,0.15); color:#6dbf60; }
-  .pill-sleep     { background:rgba(96,112,96,0.2); color:#607060; }
-  .pill-recovery  { background:rgba(136,136,136,0.12); color:#888; }
-  .pill-planning  { background:rgba(224,80,80,0.15); color:#e05050; }
-  .pill-personal  { background:rgba(155,127,232,0.15); color:#9b7fe8; }
-  .pill-finance   { background:rgba(232,160,48,0.15); color:#e8a030; }
+/* SCHEDULE */
+.day-nav{display:flex;gap:0.3rem;margin-bottom:1rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+.day-nav::-webkit-scrollbar{display:none;}
+.db{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.75rem;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;border-radius:3px;transition:all 0.15s;white-space:nowrap;}
+.db:hover{border-color:var(--teal);color:var(--teal);}
+.db.active{background:var(--bg3);border-color:var(--teal);color:var(--teal);}
+.sched-tbl{width:100%;border-collapse:collapse;}
+.sched-tbl th{font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);padding:0.5rem 0.6rem;border-bottom:1px solid var(--border);text-align:left;font-weight:400;}
+.sched-tbl th:first-child{width:70px;}
+.s-row{transition:background 0.1s;}
+.s-row:hover{background:rgba(255,255,255,0.02);}
+.s-row.now{background:rgba(29,190,138,0.04);}
+.s-time{font-size:0.58rem;color:var(--text3);padding:0.55rem 0.6rem;border-right:1px solid var(--border);vertical-align:top;white-space:nowrap;}
+.s-row.now .s-time{color:var(--teal);}
+.s-cell{padding:0.5rem 0.7rem;border-bottom:1px solid rgba(255,255,255,0.02);}
+.s-name{font-family:var(--font-head);font-size:0.75rem;font-weight:600;line-height:1.3;}
+.s-sub{font-size:0.58rem;margin-top:2px;opacity:0.55;font-style:italic;}
+.now-badge{display:inline-flex;align-items:center;gap:5px;background:var(--teal-glow);border:1px solid var(--teal-dim);border-radius:3px;padding:2px 7px;font-size:0.52rem;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-left:7px;vertical-align:middle;}
+.now-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.legend{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);}
+.leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
 
-  /* GOALS */
-  .goals-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; }
-  .goal-card {
-    background:var(--bg2);
-    border:1px solid var(--border);
-    border-radius:6px;
-    padding:1.25rem;
-    transition:border-color 0.2s;
-  }
-  .goal-card:hover { border-color:rgba(29,190,138,0.3); }
-  .goal-icon { font-size:1.4rem; margin-bottom:0.6rem; }
-  .goal-name {
-    font-family:var(--font-head);
-    font-size:0.9rem;
-    font-weight:700;
-    margin-bottom:0.2rem;
-    line-height:1.3;
-  }
-  .goal-deadline {
-    font-size:0.6rem;
-    color:var(--text2);
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    margin-bottom:0.75rem;
-  }
-  .progress-track {
-    height:4px;
-    background:var(--bg3);
-    border-radius:99px;
-    overflow:hidden;
-    margin-bottom:0.4rem;
-  }
-  .progress-fill {
-    height:100%;
-    border-radius:99px;
-    transition:width 0.6s ease;
-  }
-  .progress-label {
-    display:flex;
-    justify-content:space-between;
-    font-size:0.58rem;
-    color:var(--text3);
-  }
-  .goal-input {
-    width:60px;
-    background:transparent;
-    border:none;
-    border-bottom:1px solid var(--border);
-    color:var(--teal);
-    font-family:var(--font-mono);
-    font-size:0.65rem;
-    text-align:right;
-    outline:none;
-  }
+/* CAT COLORS */
+.cat-deepwork{color:#1dbe8a;} .cat-admin{color:#4a9fe8;} .cat-fitness{color:#e8a030;}
+.cat-language{color:#9b7fe8;} .cat-buffer{color:#666;} .cat-relation{color:#e87faa;}
+.cat-meal{color:#6dbf60;} .cat-sleep{color:#556055;} .cat-recovery{color:#888;}
+.cat-planning{color:#e05050;} .cat-personal{color:#9b7fe8;} .cat-finance{color:#e8a030;}
+.pill-deepwork{background:rgba(29,190,138,0.12);color:#1dbe8a;}
+.pill-admin{background:rgba(74,159,232,0.12);color:#4a9fe8;}
+.pill-fitness{background:rgba(232,160,48,0.12);color:#e8a030;}
+.pill-language{background:rgba(155,127,232,0.12);color:#9b7fe8;}
+.pill-buffer{background:rgba(100,100,100,0.1);color:#666;}
+.pill-relation{background:rgba(232,127,170,0.12);color:#e87faa;}
+.pill-meal{background:rgba(109,191,96,0.12);color:#6dbf60;}
+.pill-sleep{background:rgba(85,96,85,0.2);color:#556055;}
+.pill-recovery{background:rgba(136,136,136,0.1);color:#888;}
+.pill-planning{background:rgba(224,80,80,0.12);color:#e05050;}
+.pill-personal{background:rgba(155,127,232,0.12);color:#9b7fe8;}
+.pill-finance{background:rgba(232,160,48,0.12);color:#e8a030;}
 
-  /* HABITS */
-  .habits-wrap { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:1rem; }
-  .habit-card {
-    background:var(--bg2);
-    border:1px solid var(--border);
-    border-radius:6px;
-    padding:1.1rem;
-  }
-  .habit-header {
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:0.8rem;
-  }
-  .habit-name {
-    font-family:var(--font-head);
-    font-size:0.82rem;
-    font-weight:700;
-  }
-  .streak-count {
-    font-size:0.65rem;
-    color:var(--teal);
-    font-weight:700;
-    letter-spacing:0.05em;
-  }
-  .dots-row { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
-  .day-dot {
-    width:28px; height:28px;
-    border-radius:4px;
-    border:1px solid var(--border);
-    background:transparent;
-    cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.55rem;
-    color:var(--text3);
-    font-family:var(--font-mono);
-    transition:all 0.15s;
-    position:relative;
-  }
-  .day-dot:hover { border-color:var(--teal); }
-  .day-dot.done { background:var(--teal); border-color:var(--teal); color:var(--bg); }
-  .day-dot.done::after { content:'✓'; font-size:0.7rem; }
-  .day-dot.done span { display:none; }
-  .day-dot.missed { background:var(--red-dim); border-color:var(--red); color:var(--red); }
-  .day-dot.missed::after { content:'✗'; font-size:0.65rem; }
-  .day-dot.missed span { display:none; }
-  .week-score {
-    margin-top:0.6rem;
-    font-size:0.58rem;
-    color:var(--text3);
-    letter-spacing:0.05em;
-  }
+/* GOALS */
+.goals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.85rem;}
+.goal-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;}
+.goal-card:hover{border-color:rgba(29,190,138,0.25);}
+.g-icon{font-size:1.3rem;margin-bottom:0.5rem;}
+.g-name{font-family:var(--font-head);font-size:0.88rem;font-weight:700;margin-bottom:2px;}
+.g-sub{font-size:0.62rem;color:var(--text2);margin-bottom:0.4rem;}
+.g-dl{font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:0.7rem;}
+.g-actions{margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);}
+.g-action-lbl{font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:0.35rem;}
+.g-action-item{font-size:0.62rem;color:var(--text2);padding:2px 0;line-height:1.5;}
+.pct-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--teal);font-family:var(--font-mono);font-size:0.65rem;width:40px;text-align:right;outline:none;padding:2px;}
 
-  /* RULES */
-  .rules-list { display:flex; flex-direction:column; gap:0.8rem; }
-  .rule-card {
-    background:var(--bg2);
-    border:1px solid var(--border);
-    border-left:3px solid var(--teal);
-    border-radius:0 6px 6px 0;
-    padding:1.1rem 1.25rem;
-    cursor:pointer;
-    transition:all 0.2s;
-  }
-  .rule-card:hover { background:var(--bg3); }
-  .rule-card[data-color="amber"] { border-left-color:var(--amber); }
-  .rule-card[data-color="red"]   { border-left-color:var(--red); }
-  .rule-card[data-color="purple"]{ border-left-color:var(--purple); }
-  .rule-card[data-color="blue"]  { border-left-color:var(--blue); }
-  .rule-header {
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .rule-num {
-    font-size:0.55rem;
-    letter-spacing:0.15em;
-    text-transform:uppercase;
-    color:var(--text3);
-    margin-bottom:4px;
-  }
-  .rule-title {
-    font-family:var(--font-head);
-    font-size:0.9rem;
-    font-weight:700;
-  }
-  .rule-toggle { font-size:0.8rem; color:var(--text3); transition:transform 0.2s; }
-  .rule-body {
-    display:none;
-    margin-top:0.8rem;
-    font-size:0.68rem;
-    color:var(--text2);
-    line-height:1.8;
-    border-top:1px solid var(--border);
-    padding-top:0.8rem;
-  }
-  .rule-card.open .rule-body { display:block; }
-  .rule-card.open .rule-toggle { transform:rotate(180deg); }
+/* HABITS */
+.habits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.85rem;}
+.habit-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem;}
+.h-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.7rem;}
+.h-name{font-family:var(--font-head);font-size:0.8rem;font-weight:700;}
+.h-streak{font-size:0.65rem;color:var(--teal);font-weight:700;}
+.dots{display:flex;gap:4px;flex-wrap:wrap;}
+.dot{width:32px;height:32px;border-radius:4px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:var(--text3);font-family:var(--font-mono);transition:all 0.12s;position:relative;}
+.dot:hover{border-color:var(--teal);}
+.dot.done{background:var(--teal);border-color:var(--teal);color:var(--bg);font-size:0.75rem;}
+.dot.done::after{content:'✓';}
+.dot.done span{display:none;}
+.dot.miss{background:rgba(224,80,80,0.15);border-color:var(--red);color:var(--red);font-size:0.7rem;}
+.dot.miss::after{content:'✗';}
+.dot.miss span{display:none;}
+.h-score{margin-top:0.5rem;font-size:0.58rem;color:var(--text3);}
 
-  /* STATS ROW */
-  .stats-row {
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
-    gap:0.8rem;
-    margin-bottom:1.5rem;
-  }
-  .stat-box {
-    background:var(--bg2);
-    border:1px solid var(--border);
-    border-radius:5px;
-    padding:0.9rem;
-  }
-  .stat-label { font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); margin-bottom:4px; }
-  .stat-val { font-family:var(--font-head); font-size:1.6rem; font-weight:800; color:var(--teal); line-height:1; }
-  .stat-sub { font-size:0.6rem; color:var(--text3); margin-top:3px; }
+/* RULES */
+.rule{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:0 var(--r) var(--r) 0;padding:1rem 1.1rem;margin-bottom:0.7rem;cursor:pointer;}
+.rule[data-c=amber]{border-left-color:var(--amber);}
+.rule[data-c=red]{border-left-color:var(--red);}
+.rule[data-c=purple]{border-left-color:var(--purple);}
+.rule[data-c=blue]{border-left-color:var(--blue);}
+.rule-hdr{display:flex;justify-content:space-between;align-items:center;}
+.rule-num{font-size:0.52rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}
+.rule-title{font-family:var(--font-head);font-size:0.85rem;font-weight:700;}
+.rule-arr{font-size:0.75rem;color:var(--text3);transition:transform 0.2s;}
+.rule-body{display:none;margin-top:0.75rem;font-size:0.67rem;color:var(--text2);line-height:1.9;border-top:1px solid var(--border);padding-top:0.75rem;}
+.rule.open .rule-body{display:block;}
+.rule.open .rule-arr{transform:rotate(180deg);}
 
-  /* IDENTITY */
-  .identity-card {
-    background:var(--bg2);
-    border:1px solid var(--teal-dim);
-    border-radius:6px;
-    padding:2rem;
-    text-align:center;
-    margin-bottom:1.5rem;
-  }
-  .identity-text {
-    font-family:var(--font-head);
-    font-size:1.1rem;
-    font-weight:700;
-    line-height:1.7;
-    color:var(--text);
-    max-width:700px;
-    margin:0 auto;
-  }
-  .identity-text span { color:var(--teal); }
+/* INK LAB */
+.customer-list{margin-top:0.5rem;}
+.c-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.c-item:last-child{border-bottom:none;}
+.c-num{font-family:var(--font-head);font-size:0.65rem;color:var(--text3);width:20px;text-align:center;}
+.c-info{flex:1;min-width:0;}
+.c-name{font-size:0.75rem;font-weight:500;color:var(--text);}
+.c-detail{font-size:0.6rem;color:var(--text3);margin-top:1px;}
+.c-status{font-size:0.58rem;}
+.c-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.8rem;padding:4px;}
+.c-del:hover{color:var(--red);}
 
-  /* LEGEND */
-  .legend { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem; }
-  .legend-item {
-    display:flex; align-items:center; gap:5px;
-    font-size:0.58rem;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--text2);
-  }
-  .legend-dot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+/* MONEY */
+.money-total{font-family:var(--font-head);font-size:2.2rem;font-weight:800;color:var(--teal);margin-bottom:0.2rem;}
+.money-label{font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);}
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.tx-item:last-child{border-bottom:none;}
+.tx-desc{font-size:0.7rem;color:var(--text2);}
+.tx-date{font-size:0.58rem;color:var(--text3);}
+.tx-amt{font-family:var(--font-head);font-size:0.78rem;font-weight:700;}
+.tx-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.75rem;padding:2px 5px;}
+.tx-del:hover{color:var(--red);}
 
-  /* CURRENT TIME LINE */
-  .now-badge {
-    display:inline-flex; align-items:center; gap:6px;
-    background:var(--teal-glow);
-    border:1px solid var(--teal-dim);
-    border-radius:3px;
-    padding:3px 8px;
-    font-size:0.58rem;
-    color:var(--teal);
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    margin-left:8px;
-  }
-  .now-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+/* WORKOUT */
+.wo-day-tabs{display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:1rem;}
+.wo-tab{font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.8rem;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;border-radius:3px;transition:all 0.15s;}
+.wo-tab.active{background:var(--amber);border-color:var(--amber);color:var(--bg);font-weight:700;}
+.exercise-item{display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.ex-name{flex:1;font-size:0.72rem;color:var(--text);}
+.ex-details{font-size:0.62rem;color:var(--text2);}
+.ex-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.75rem;padding:4px;}
+.ex-del:hover{color:var(--red);}
 
-  /* DIVIDER */
-  .divider { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+/* LANGUAGE */
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+@media(max-width:480px){.lang-grid{grid-template-columns:1fr;}}
+.lang-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;}
+.lang-name{font-family:var(--font-head);font-size:1.1rem;font-weight:800;margin-bottom:0.3rem;}
+.lang-streak{font-size:0.65rem;color:var(--text2);margin-bottom:0.75rem;}
+.lang-streak span{color:var(--purple);font-weight:700;}
+.lang-dots{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:0.6rem;}
+.lang-dot{width:14px;height:14px;border-radius:2px;background:var(--bg3);cursor:pointer;transition:background 0.15s;}
+.lang-dot.done{background:var(--purple);}
+.lang-dot:hover{background:rgba(155,127,232,0.3);}
+.vocab-item{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:0.7rem;}
+.vocab-item:last-child{border-bottom:none;}
+.vocab-word{color:var(--purple);font-weight:700;}
+.vocab-mean{color:var(--text2);}
+.vocab-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.7rem;}
+.vocab-del:hover{color:var(--red);}
 
-  /* RESPONSIVE — MOBILE FIRST */
-  @media(max-width:600px) {
-    .app { padding:1rem 0.75rem; }
-    .header { flex-direction:column; gap:0.75rem; }
-    .header-left h1 { font-size:2rem; }
-    .clock { text-align:left; }
-    .clock .time-big { font-size:1.1rem; }
-    .goals-grid { grid-template-columns:1fr; }
-    .habits-wrap { grid-template-columns:1fr; }
-    .stats-row { grid-template-columns:repeat(2,1fr); }
-    .nav { gap:0.3rem; }
-    .nav-btn { font-size:0.58rem; padding:0.4rem 0.7rem; }
-    .day-nav { gap:0.25rem; }
-    .day-btn { font-size:0.58rem; padding:0.35rem 0.65rem; }
-    .schedule-table { font-size:0.75rem; }
-    .block-name { font-size:0.72rem; }
-    .block-sub { font-size:0.56rem; }
-    .time-cell { font-size:0.55rem; padding:0.5rem 0.5rem; min-width:55px; }
-    .block-cell { padding:0.5rem 0.6rem; }
-    .day-dot { width:34px; height:34px; font-size:0.6rem; }
-    .mantra-strip { font-size:0.68rem; padding:0.6rem 0.9rem; }
-    .identity-text { font-size:0.9rem; }
-    .rule-title { font-size:0.82rem; }
-    .stat-val { font-size:1.3rem; }
-    .header-left .subtitle { font-size:0.58rem; }
-    /* Two-column grid becomes 1 col on small screens */
-    div[style*="grid-template-columns:1fr 1fr"] {
-      grid-template-columns:1fr !important;
-    }
-  }
+/* RELATIONSHIP */
+.rel-item{display:flex;align-items:flex-start;gap:0.75rem;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.rel-item:last-child{border-bottom:none;}
+.rel-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.rel-info{flex:1;}
+.rel-act{font-size:0.75rem;color:var(--text);font-weight:500;}
+.rel-date{font-size:0.58rem;color:var(--text3);margin-top:1px;}
+.rel-note{font-size:0.63rem;color:var(--text2);margin-top:3px;font-style:italic;}
+.rel-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.75rem;padding:4px;}
+.rel-del:hover{color:var(--red);}
 
-  /* TOUCH TARGETS — minimum 44px for all interactive elements */
-  @media(max-width:768px) {
-    .nav-btn, .day-btn { min-height:40px; display:flex; align-items:center; }
-    .day-dot { min-width:36px; min-height:36px; }
-    #pw-input { font-size:16px; } /* Prevents iOS zoom on input focus */
-  }
+/* JOURNAL */
+.j-date-nav{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;}
+.j-date-nav button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;padding:0.35rem 0.7rem;font-size:0.7rem;}
+.j-date-nav button:hover{border-color:var(--teal);color:var(--teal);}
+.j-date-display{font-family:var(--font-head);font-size:0.9rem;font-weight:700;color:var(--teal);flex:1;text-align:center;}
+.j-mood{display:flex;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:wrap;}
+.mood-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:0.35rem 0.8rem;font-size:0.65rem;cursor:pointer;color:var(--text2);transition:all 0.15s;}
+.mood-btn.sel{border-color:var(--teal);background:var(--teal-glow);color:var(--teal);}
+.j-entry{width:100%;min-height:160px;font-size:0.75rem;line-height:1.8;}
+.j-save-btn{margin-top:0.6rem;}
+.j-list{margin-top:1rem;}
+.j-item{padding:0.75rem;background:var(--bg3);border-radius:var(--r-sm);margin-bottom:0.5rem;cursor:pointer;transition:background 0.15s;}
+.j-item:hover{background:var(--bg4);}
+.j-item-date{font-size:0.6rem;color:var(--text3);letter-spacing:0.08em;margin-bottom:4px;}
+.j-item-preview{font-size:0.7rem;color:var(--text2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.j-item-mood{font-size:0.65rem;}
 
-  /* FADE IN */
-  .section.active { animation: fadeIn 0.25s ease; }
-  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+/* MONTHLY REVIEW */
+.review-form{}
+.review-q{margin-bottom:1.25rem;}
+.review-q-text{font-family:var(--font-head);font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:0.5rem;line-height:1.4;}
+.review-month-nav{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;}
+.review-month-nav button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;padding:0.35rem 0.7rem;font-size:0.7rem;}
+.review-month-nav button:hover{border-color:var(--teal);color:var(--teal);}
+.review-month-label{font-family:var(--font-head);font-size:0.9rem;font-weight:700;color:var(--teal);flex:1;text-align:center;}
+.star-rating{display:flex;gap:4px;margin-bottom:0.5rem;}
+.star{font-size:1.2rem;cursor:pointer;opacity:0.3;transition:opacity 0.15s;}
+.star.lit{opacity:1;}
+
+/* REMINDERS */
+.rem-item{display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:var(--bg3);border-radius:var(--r-sm);margin-bottom:0.5rem;}
+.rem-info{flex:1;}
+.rem-name{font-size:0.75rem;font-weight:500;color:var(--text);margin-bottom:2px;}
+.rem-time{font-size:0.6rem;color:var(--teal);letter-spacing:0.05em;}
+.rem-note{font-size:0.58rem;color:var(--text3);margin-top:1px;}
+.rem-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.75rem;padding:4px 8px;}
+.rem-del:hover{color:var(--red);}
+
+/* IDENTITY */
+.id-quote{background:var(--bg2);border:1px solid var(--teal-dim);border-radius:var(--r);padding:1.75rem;text-align:center;margin-bottom:1rem;}
+.id-text{font-family:var(--font-head);font-size:1rem;font-weight:700;line-height:1.7;color:var(--text);}
+.id-text span{color:var(--teal);}
+.trap-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+@media(max-width:480px){.trap-grid{grid-template-columns:1fr;}}
+.trap{background:rgba(224,80,80,0.08);border:1px solid rgba(224,80,80,0.15);border-radius:var(--r-sm);padding:0.75rem;font-size:0.67rem;color:#e07070;line-height:1.6;}
+.trap strong{display:block;margin-bottom:2px;}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .app{padding:1rem 0.75rem 5rem;}
+  .hdr{flex-direction:column;gap:0.75rem;}
+  .clock-box{text-align:left;}
+  .goals-grid{grid-template-columns:1fr;}
+  .habits-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .s-time{min-width:52px;font-size:0.54rem;}
+  .s-name{font-size:0.7rem;}
+}
 </style>
 </head>
 <body>
 
 <!-- LOCK SCREEN -->
-<div id="lock-screen">
-  <div class="lock-inner">
-    <div class="lock-logo">GALU</div>
+<div id="lock">
+  <div class="lock-box">
+    <div class="lock-title">GALU</div>
     <div class="lock-sub">2026 — Zero-Gap Operating System</div>
-    <span class="lock-icon">🔒</span>
-    <div class="lock-label">Enter your access code</div>
-    <input type="password" id="pw-input" placeholder="••••••••••••••••••••" autocomplete="current-password" />
-    <button id="pw-btn" onclick="checkPassword()">UNLOCK →</button>
-    <div id="pw-error"></div>
+    <div style="font-size:2rem;opacity:0.35;margin-bottom:1.5rem;">🔒</div>
+    <div class="lock-lbl">Access code</div>
+    <input type="password" id="pw-in" placeholder="••••••••••••••••••••" autocomplete="current-password">
+    <button id="pw-btn" onclick="unlock()">UNLOCK →</button>
+    <div id="pw-msg"></div>
   </div>
 </div>
 
-<!-- APP CONTENT -->
-<div id="app-content">
+<!-- MAIN APP -->
+<div id="main">
 <div class="app">
 
   <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
+  <div class="hdr">
+    <div class="hdr-l">
       <h1>GALU 2026</h1>
-      <div class="subtitle">Zero-Gap Operating System</div>
+      <div class="sub">Zero-Gap Operating System</div>
     </div>
-    <div class="clock">
-      <span class="time-big" id="clock-time">--:--</span>
-      <span class="day-label" id="clock-day">Loading...</span>
+    <div class="clock-box">
+      <span class="clock-time" id="clk"></span>
+      <span class="clock-day" id="clk-day"></span>
     </div>
   </div>
 
-  <!-- MANTRA -->
-  <div class="mantra-strip">
-    "I don't need perfect conditions. I just need to move."
+  <!-- QUOTE BAR -->
+  <div class="quote-bar" onclick="nextQuote()" title="Tap for next quote">
+    <span>Quote of the day — tap to refresh</span>
+    <span id="quote-text"></span>
   </div>
 
   <!-- NAV -->
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showSection('schedule',this)">Schedule</button>
-    <button class="nav-btn" onclick="showSection('goals',this)">Goals</button>
-    <button class="nav-btn" onclick="showSection('habits',this)">Habits</button>
-    <button class="nav-btn" onclick="showSection('rules',this)">System Rules</button>
-    <button class="nav-btn" onclick="showSection('identity',this)">Identity</button>
-  </nav>
+  <div class="nav-wrap">
+    <div class="nav">
+      <button class="nb active" onclick="show('schedule',this)">Schedule</button>
+      <button class="nb" onclick="show('goals',this)">Goals</button>
+      <button class="nb" onclick="show('habits',this)">Habits</button>
+      <button class="nb" onclick="show('inklab',this)">Ink Lab</button>
+      <button class="nb" onclick="show('money',this)">Money</button>
+      <button class="nb" onclick="show('workout',this)">Workout</button>
+      <button class="nb" onclick="show('language',this)">Language</button>
+      <button class="nb" onclick="show('relationship',this)">Relationship</button>
+      <button class="nb" onclick="show('journal',this)">Journal</button>
+      <button class="nb" onclick="show('review',this)">Monthly Review</button>
+      <button class="nb" onclick="show('reminders',this)">Reminders</button>
+      <button class="nb" onclick="show('identity',this)">Identity</button>
+    </div>
+  </div>
 
-  <!-- =================== SCHEDULE =================== -->
-  <div class="section active" id="section-schedule">
-
+  <!-- ===== SCHEDULE ===== -->
+  <div class="sec active" id="sec-schedule">
     <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#1dbe8a"></div>Deep Work</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4a9fe8"></div>Admin</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e8a030"></div>Fitness</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#9b7fe8"></div>Language</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e87faa"></div>Relationship</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#6dbf60"></div>Meal</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e05050"></div>Planning</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#607060"></div>Sleep/Rest</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#1dbe8a"></div>Deep Work</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#4a9fe8"></div>Admin</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#e8a030"></div>Fitness</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#9b7fe8"></div>Language</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#e87faa"></div>Relationship</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#6dbf60"></div>Meal</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#e05050"></div>Planning</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#556055"></div>Sleep</div>
     </div>
-
     <div class="day-nav" id="day-nav"></div>
-    <div id="schedule-content"></div>
+    <div id="sched-out"></div>
   </div>
 
-  <!-- =================== GOALS =================== -->
-  <div class="section" id="section-goals">
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-label">Active Goals</div><div class="stat-val">6</div><div class="stat-sub">2026</div></div>
-      <div class="stat-box"><div class="stat-label">Days Elapsed</div><div class="stat-val" id="days-elapsed">—</div><div class="stat-sub">since Jan 1</div></div>
-      <div class="stat-box"><div class="stat-label">Days Left</div><div class="stat-val" id="days-left">—</div><div class="stat-sub">in 2026</div></div>
-      <div class="stat-box"><div class="stat-label">Current Quarter</div><div class="stat-val" id="current-q">Q1</div><div class="stat-sub" id="q-focus">Start & Stabilize</div></div>
-    </div>
-    <div class="goals-grid" id="goals-grid"></div>
+  <!-- ===== GOALS ===== -->
+  <div class="sec" id="sec-goals">
+    <div class="stat-grid" id="goal-stats"></div>
+    <div class="goals-grid" id="goals-out"></div>
   </div>
 
-  <!-- =================== HABITS =================== -->
-  <div class="section" id="section-habits">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <div style="font-family:var(--font-head); font-size:0.8rem; font-weight:700; color:var(--text2); letter-spacing:0.1em; text-transform:uppercase;">This Week's Habits</div>
-      <div style="font-size:0.6rem; color:var(--text3);">Tap to mark done · Tap again for missed · Tap again to clear</div>
+  <!-- ===== HABITS ===== -->
+  <div class="sec" id="sec-habits">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:var(--font-head);font-size:0.78rem;font-weight:700;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;">This Week</div>
+      <div style="font-size:0.58rem;color:var(--text3);">Tap: done · again: missed · again: clear</div>
     </div>
-    <div class="habits-wrap" id="habits-wrap"></div>
-    <hr class="divider">
-    <div style="font-family:var(--font-head); font-size:0.75rem; font-weight:700; color:var(--text2); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.75rem;">Week Score</div>
-    <div id="week-score-summary" style="font-size:0.7rem; color:var(--text2); line-height:2;"></div>
+    <div class="habits-grid" id="habits-out"></div>
+    <hr>
+    <div id="week-score"></div>
   </div>
 
-  <!-- =================== RULES =================== -->
-  <div class="section" id="section-rules">
-    <div class="rules-list" id="rules-list"></div>
+  <!-- ===== INK LAB ===== -->
+  <div class="sec" id="sec-inklab">
+    <div class="stat-grid" id="inklab-stats"></div>
+    <div class="card">
+      <div class="card-title">Add Customer / Order</div>
+      <div class="form-row">
+        <div class="form-group"><label>Customer name</label><input type="text" id="c-name" placeholder="e.g. John Mwangi"></div>
+        <div class="form-group"><label>Item / service</label><input type="text" id="c-item" placeholder="e.g. T-shirt print x5"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Amount (KES)</label><input type="number" id="c-amt" placeholder="0"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="c-status">
+            <option value="inquiry">Inquiry</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed ✓</option>
+            <option value="paid">Paid 💰</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes</label><input type="text" id="c-notes" placeholder="Any details..."></div>
+      <button class="btn btn-solid btn-sm" onclick="addCustomer()">Add Customer</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Customer Tracker</div>
+      <div class="customer-list" id="customer-list"><div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No customers yet. Add your first one above. 🚀</div></div>
+    </div>
   </div>
 
-  <!-- =================== IDENTITY =================== -->
-  <div class="section" id="section-identity">
-    <div class="identity-card">
-      <div style="font-size:0.55rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text3); margin-bottom:1rem;">Read this every Sunday</div>
-      <div class="identity-text">
-        I am <span>Galu</span>. I build things. I built a business concept, co-bought land, and started pursuing the woman I want — all without a plan. <span>Now I have one.</span> Nothing can stop what I become in 2026.
+  <!-- ===== MONEY ===== -->
+  <div class="sec" id="sec-money">
+    <div class="card">
+      <div class="card-title">Savings Overview</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <div class="money-label">Total Saved</div>
+          <div class="money-total" id="total-saved">KES 0</div>
+        </div>
+        <div>
+          <div class="money-label">Goal (2026)</div>
+          <div class="money-total" id="savings-goal-disp" style="color:var(--text2);">KES 0</div>
+        </div>
+      </div>
+      <div class="prog-track" style="height:8px;margin-bottom:6px;">
+        <div class="prog-fill" id="savings-prog" style="background:var(--teal);width:0%;"></div>
+      </div>
+      <div style="font-size:0.6rem;color:var(--text3);" id="savings-pct-label">0% of goal</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Set Savings Goal</div>
+      <div class="form-row">
+        <div class="form-group"><label>Annual goal (KES)</label><input type="number" id="s-goal" placeholder="e.g. 100000"></div>
+        <div style="display:flex;align-items:flex-end;padding-bottom:0.75rem;"><button class="btn btn-sm" onclick="setSavingsGoal()">Set Goal</button></div>
       </div>
     </div>
-
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-      <div style="background:var(--bg2); border:1px solid var(--teal-dim); border-radius:6px; padding:1.25rem;">
-        <div style="font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--teal); margin-bottom:0.5rem;">Monthly Accountability Question</div>
-        <div style="font-family:var(--font-head); font-size:0.88rem; font-weight:700; line-height:1.5; font-style:italic;">"Did I prove something to myself this month — or did I let the old Galu run the show?"</div>
+    <div class="card">
+      <div class="card-title">Log Transaction</div>
+      <div class="form-row">
+        <div class="form-group"><label>Description</label><input type="text" id="tx-desc" placeholder="e.g. Weekly savings"></div>
+        <div class="form-group"><label>Amount (KES)</label><input type="number" id="tx-amt" placeholder="0"></div>
       </div>
-      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:1.25rem;">
-        <div style="font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); margin-bottom:0.5rem;">Your Core Motivation</div>
-        <div style="font-family:var(--font-head); font-size:0.88rem; font-weight:700; line-height:1.5; color:var(--amber);">I want to prove something to myself.</div>
-        <div style="font-size:0.65rem; color:var(--text2); margin-top:0.5rem; line-height:1.7;">Not for clout. Not for others. For you. That makes you a Rebel-Obliger — you break rules others set, but you fight hard for the ones you set yourself.</div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label>
+          <select id="tx-type">
+            <option value="savings">Savings deposit</option>
+            <option value="income">Ink Lab income</option>
+            <option value="expense">Expense</option>
+            <option value="plot">Plot fund</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Date</label><input type="date" id="tx-date"></div>
+      </div>
+      <button class="btn btn-solid btn-sm" onclick="addTransaction()">Add Transaction</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Transaction Log</div>
+      <div id="tx-list"><div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No transactions yet.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== WORKOUT ===== -->
+  <div class="sec" id="sec-workout">
+    <div class="stat-grid" id="wo-stats"></div>
+    <div class="card">
+      <div class="card-title">Log Exercise</div>
+      <div class="form-row">
+        <div class="form-group"><label>Exercise</label><input type="text" id="ex-name" placeholder="e.g. Push-ups"></div>
+        <div class="form-group"><label>Sets × Reps / Duration</label><input type="text" id="ex-detail" placeholder="e.g. 3×15 or 20 mins"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label>
+          <select id="ex-type">
+            <option value="strength">Strength</option>
+            <option value="cardio">Cardio</option>
+            <option value="recovery">Active Recovery</option>
+            <option value="flexibility">Flexibility</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Date</label><input type="date" id="ex-date"></div>
+      </div>
+      <div class="form-group"><label>Notes / how you felt</label><input type="text" id="ex-notes" placeholder="Optional"></div>
+      <button class="btn btn-solid btn-sm" style="background:var(--amber);border-color:var(--amber);" onclick="addExercise()">Log Exercise</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Workout Log</div>
+      <div id="wo-list"><div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No workouts logged yet. Start tomorrow at 5:45 AM. 💪</div></div>
+    </div>
+  </div>
+
+  <!-- ===== LANGUAGE ===== -->
+  <div class="sec" id="sec-language">
+    <div class="lang-grid" id="lang-cards"></div>
+    <div class="card">
+      <div class="card-title">Add Vocabulary Word</div>
+      <div class="form-row">
+        <div class="form-group"><label>Language</label>
+          <select id="vocab-lang">
+            <option value="amharic">Amharic</option>
+            <option value="oromifa">Oromifa</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Word / Phrase</label><input type="text" id="vocab-word" placeholder="e.g. ሰላም"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Meaning / Translation</label><input type="text" id="vocab-mean" placeholder="e.g. Hello / Peace"></div>
+        <div class="form-group"><label>Pronunciation (optional)</label><input type="text" id="vocab-pron" placeholder="e.g. sel-am"></div>
+      </div>
+      <button class="btn btn-solid btn-sm" style="background:var(--purple);border-color:var(--purple);" onclick="addVocab()">Add Word</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Vocabulary Bank</div>
+      <div id="vocab-list"><div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">Start learning. Add your first word above. 🗣</div></div>
+    </div>
+  </div>
+
+  <!-- ===== RELATIONSHIP ===== -->
+  <div class="sec" id="sec-relationship">
+    <div class="stat-grid" id="rel-stats"></div>
+    <div class="card">
+      <div class="card-title">Log a Gesture / Date / Moment</div>
+      <div class="form-row">
+        <div class="form-group"><label>What you did</label><input type="text" id="rel-act" placeholder="e.g. Surprise lunch date"></div>
+        <div class="form-group"><label>Date</label><input type="date" id="rel-date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label>
+          <select id="rel-type">
+            <option value="💝">Quality time 💝</option>
+            <option value="🌹">Romantic gesture 🌹</option>
+            <option value="📞">Meaningful call 📞</option>
+            <option value="🎁">Gift / surprise 🎁</option>
+            <option value="🤝">Serious conversation 🤝</option>
+            <option value="✨">Special moment ✨</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Her reaction / your feeling</label><input type="text" id="rel-note" placeholder="Optional note"></div>
+      </div>
+      <button class="btn btn-solid btn-sm" style="background:var(--pink);border-color:var(--pink);color:var(--bg);" onclick="addRelGesture()">Log It</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Relationship Log</div>
+      <div id="rel-list"><div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No gestures logged yet. Be intentional. 💍</div></div>
+    </div>
+  </div>
+
+  <!-- ===== JOURNAL ===== -->
+  <div class="sec" id="sec-journal">
+    <div class="card">
+      <div class="card-title">Daily Journal</div>
+      <div class="j-date-nav">
+        <button onclick="jPrev()">←</button>
+        <div class="j-date-display" id="j-date-disp"></div>
+        <button onclick="jNext()">→</button>
+      </div>
+      <div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:0.4rem;">How are you feeling today?</div>
+      <div class="j-mood" id="j-mood">
+        <button class="mood-btn" data-m="🔥 Fired up" onclick="setMood(this)">🔥 Fired up</button>
+        <button class="mood-btn" data-m="😤 Focused" onclick="setMood(this)">😤 Focused</button>
+        <button class="mood-btn" data-m="😐 Neutral" onclick="setMood(this)">😐 Neutral</button>
+        <button class="mood-btn" data-m="😴 Foggy" onclick="setMood(this)">😴 Foggy</button>
+        <button class="mood-btn" data-m="💪 Strong" onclick="setMood(this)">💪 Strong</button>
+        <button class="mood-btn" data-m="😟 Struggling" onclick="setMood(this)">😟 Struggling</button>
+      </div>
+      <div class="form-group" style="margin-bottom:0.5rem;">
+        <label>Today's entry</label>
+        <textarea id="j-entry" placeholder="What happened today? What did you build? What did you feel? Did you move forward?"></textarea>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <button class="btn btn-solid btn-sm j-save-btn" onclick="saveJournal()">Save Entry</button>
+        <span id="j-saved-msg" style="font-size:0.6rem;color:var(--teal);"></span>
       </div>
     </div>
+    <div class="card">
+      <div class="card-title">Past Entries</div>
+      <div id="j-list"><div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1rem 0;">No entries yet. Write your first one above.</div></div>
+    </div>
+  </div>
 
-    <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-bottom:1rem;">
-      <div style="font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); margin-bottom:1rem;">4 Traps to Avoid in 2026</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-        <div style="background:var(--red-dim); border:1px solid rgba(224,80,80,0.2); border-radius:4px; padding:0.75rem; font-size:0.68rem; color:#e07070; line-height:1.6;"><strong>Trap 1</strong><br>Waiting to feel ready. You never will. Start foggy.</div>
-        <div style="background:var(--red-dim); border:1px solid rgba(224,80,80,0.2); border-radius:4px; padding:0.75rem; font-size:0.68rem; color:#e07070; line-height:1.6;"><strong>Trap 2</strong><br>Fixing everything at once. One habit for 30 days first.</div>
-        <div style="background:var(--red-dim); border:1px solid rgba(224,80,80,0.2); border-radius:4px; padding:0.75rem; font-size:0.68rem; color:#e07070; line-height:1.6;"><strong>Trap 3</strong><br>Highs as a daily default. Make it earned, not automatic.</div>
-        <div style="background:var(--red-dim); border:1px solid rgba(224,80,80,0.2); border-radius:4px; padding:0.75rem; font-size:0.68rem; color:#e07070; line-height:1.6;"><strong>Trap 4</strong><br>Isolation. Your friends group is an asset — use them.</div>
+  <!-- ===== MONTHLY REVIEW ===== -->
+  <div class="sec" id="sec-review">
+    <div class="card">
+      <div class="card-title">Monthly Review</div>
+      <div class="review-month-nav">
+        <button onclick="revPrev()">←</button>
+        <div class="review-month-label" id="rev-month-label"></div>
+        <button onclick="revNext()">→</button>
+      </div>
+      <div class="review-form" id="review-form"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;align-items:center;">
+        <button class="btn btn-solid btn-sm" onclick="saveReview()">Save Review</button>
+        <span id="rev-saved-msg" style="font-size:0.6rem;color:var(--teal);"></span>
       </div>
     </div>
+  </div>
 
-    <div style="background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:1.25rem;">
-      <div style="font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text3); margin-bottom:1rem;">Immediate Next Steps</div>
-      <div id="next-steps"></div>
+  <!-- ===== REMINDERS ===== -->
+  <div class="sec" id="sec-reminders">
+    <div class="card" style="background:rgba(29,190,138,0.05);border-color:var(--teal-dim);">
+      <div style="font-size:0.68rem;color:var(--text2);line-height:1.7;">📱 These are your key daily alarms. Tap <strong style="color:var(--teal);">Set Alarm</strong> to open your phone's clock app and add each one manually.</div>
+    </div>
+    <div id="reminders-list"></div>
+    <hr>
+    <div class="card">
+      <div class="card-title">Add Custom Reminder</div>
+      <div class="form-row">
+        <div class="form-group"><label>Reminder name</label><input type="text" id="rem-name" placeholder="e.g. Drink water"></div>
+        <div class="form-group"><label>Time</label><input type="text" id="rem-time" placeholder="e.g. 3:00 PM"></div>
+      </div>
+      <div class="form-group"><label>Note (optional)</label><input type="text" id="rem-note-in" placeholder="What to do at this time"></div>
+      <button class="btn btn-solid btn-sm" onclick="addReminder()">Add Reminder</button>
+    </div>
+    <div id="custom-reminders"></div>
+  </div>
+
+  <!-- ===== IDENTITY ===== -->
+  <div class="sec" id="sec-identity">
+    <div class="id-quote">
+      <div style="font-size:0.52rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);margin-bottom:1rem;">Read every Sunday before planning</div>
+      <div class="id-text">I am <span>Galu</span>. I build things. I built a business concept, co-bought land, and started pursuing the woman I want — all without a plan. <span>Now I have one.</span> Nothing can stop what I become in 2026.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:1rem;">
+      <div class="card" style="border-color:var(--teal-dim);">
+        <div style="font-size:0.52rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:0.5rem;">Monthly Question</div>
+        <div style="font-family:var(--font-head);font-size:0.82rem;font-weight:700;line-height:1.5;font-style:italic;">"Did I prove something to myself this month — or did I let the old Galu run the show?"</div>
+      </div>
+      <div class="card">
+        <div style="font-size:0.52rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text3);margin-bottom:0.5rem;">Your Type</div>
+        <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:700;color:var(--amber);margin-bottom:0.4rem;">Rebel-Obliger</div>
+        <div style="font-size:0.63rem;color:var(--text2);line-height:1.6;">You break rules others set. But you fight hard for the ones you set yourself. Frame every habit as <em>who you are</em>, not what you must do.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">4 Traps to Avoid</div>
+      <div class="trap-grid">
+        <div class="trap"><strong>Trap 1</strong>Waiting to feel ready. You never will. Start foggy.</div>
+        <div class="trap"><strong>Trap 2</strong>Fixing everything at once. One habit for 30 days first.</div>
+        <div class="trap"><strong>Trap 3</strong>Highs as a daily default. Make it earned, not automatic.</div>
+        <div class="trap"><strong>Trap 4</strong>Isolation. Your friends group is an asset — use them.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">System Rules (tap to expand)</div>
+      <div id="rules-out"></div>
     </div>
   </div>
 
 </div><!-- /app -->
+</div><!-- /main -->
 
 <script>
-// =================== DATA ===================
+// =================== STORAGE ===================
+const S = {
+  get:(k,d)=>{ try{ const v=localStorage.getItem(k); return v!=null?JSON.parse(v):d; }catch(e){return d;} },
+  set:(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
 
-const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+// =================== PASSWORD ===================
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++) h=Math.imul(31,h)+s.charCodeAt(i)|0; return Math.abs(h).toString(16); }
+const CORRECT = hashStr("sBw2z%fnvP$rAj%xWAra");
+function unlock(){
+  const v=document.getElementById('pw-in').value;
+  const inp=document.getElementById('pw-in');
+  const msg=document.getElementById('pw-msg');
+  if(hashStr(v)===CORRECT){
+    sessionStorage.setItem('g26','1');
+    document.getElementById('lock').style.display='none';
+    document.getElementById('main').style.display='block';
+    initApp();
+  } else {
+    inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err');
+    msg.textContent='Incorrect password. Try again.'; inp.value='';
+    setTimeout(()=>inp.classList.remove('err'),400);
+  }
+}
+document.getElementById('pw-in').addEventListener('keydown',e=>{ if(e.key==='Enter') unlock(); });
+if(sessionStorage.getItem('g26')==='1'){
+  document.getElementById('lock').style.display='none';
+  document.getElementById('main').style.display='block';
+  // wait for DOM then init
+  document.addEventListener('DOMContentLoaded',initApp);
+  if(document.readyState!=='loading') initApp();
+}
 
-const schedule = {
-  MON: [
-    { time:"5:30", name:"WAKE UP", sub:"Water + intentions. No phone first 10 mins.", cat:"sleep" },
-    { time:"5:45", name:"STRENGTH TRAINING", sub:"Push/Pull/Legs — 30 mins", cat:"fitness" },
-    { time:"6:20", name:"Shower + dress", sub:"Ready for the day", cat:"buffer" },
-    { time:"6:35", name:"BREAKFAST", sub:"Amharic audio — 10 mins while eating", cat:"meal" },
-    { time:"7:00", name:"DEEP WORK 1 — INK LAB", sub:"Design + create products. Phone in other room.", cat:"deepwork" },
-    { time:"9:00", name:"Buffer — walk, water, breathe", sub:"Step away from screen", cat:"buffer" },
-    { time:"9:15", name:"DEEP WORK 2 — CLIENT OUTREACH", sub:"DMs, quotes, follow-ups", cat:"deepwork" },
-    { time:"11:00", name:"Buffer — snack, reset", sub:"Short break", cat:"buffer" },
-    { time:"11:15", name:"ADMIN BLOCK", sub:"Emails, social posts, Ink Lab marketing", cat:"admin" },
-    { time:"12:00", name:"LUNCH", sub:"Strategic thinking — no scrolling", cat:"meal" },
-    { time:"1:00", name:"Recovery walk — 15 mins", sub:"Outside, no earphones", cat:"recovery" },
-    { time:"1:15", name:"DEEP WORK 3 — BIZ DEV", sub:"Pricing, systems, plot planning", cat:"deepwork" },
-    { time:"3:00", name:"Buffer — stretch, water, reset", sub:"Energy transition", cat:"buffer" },
-    { time:"3:15", name:"SHALLOW WORK", sub:"Follow-ups, scheduling, research", cat:"admin" },
-    { time:"4:30", name:"PERSONAL GROWTH", sub:"Read, podcast, learn a skill", cat:"personal" },
-    { time:"5:00", name:"RELATIONSHIP TIME", sub:"Call, plan, intentional gesture", cat:"relation" },
-    { time:"6:00", name:"DINNER", sub:"Recharge — no business talk", cat:"meal" },
-    { time:"7:00", name:"FREE TIME", sub:"Friends, community, savings group", cat:"recovery" },
-    { time:"8:00", name:"LANGUAGE LEARNING", sub:"10 mins Amharic app/YouTube", cat:"language" },
-    { time:"8:15", name:"DAILY REVIEW", sub:"2-min check: did I move forward today?", cat:"planning" },
-    { time:"8:45", name:"WIND DOWN", sub:"No screens — stretch, music, breathe", cat:"sleep" },
-    { time:"9:30", name:"READ / JOURNAL", sub:"Books, reflection — no social media", cat:"sleep" },
-    { time:"10:30", name:"LIGHTS OUT", sub:"7 hours sleep target", cat:"sleep" },
+// =================== QUOTES ===================
+const QUOTES = [
+  "I don't need perfect conditions. I just need to move.",
+  "The machine exists. Every week you don't use it is money sitting idle.",
+  "No plan was 2025's problem. Planning is 2026's solution.",
+  "You're not chasing clout. You're chasing a real life.",
+  "One missed day is human. Two is a new bad habit.",
+  "Start foggy. Clarity comes from motion, not waiting.",
+  "You built things without a plan. Imagine what you'll build with one.",
+  "Mornings belong to Galu Ink Lab.",
+  "Rebel-Obliger: break everyone else's rules, fight hard for your own.",
+  "The Sunday planning session is sacred. 10 minutes. No exceptions.",
+  "Your hunger for change is your only resource — and it's enough.",
+  "Identity shift: I am someone who starts. Not someone who waits.",
+  "The machine, the land, the relationship — you built all of that. Now build the system.",
+  "Never miss twice. Restart. Always.",
+  "Deep work is the engine. Everything else is fuel.",
+  "You co-bought land with your friends. You think you can't build a business?",
+  "10 pushups tomorrow morning. Just that. That's where it begins.",
+  "Language is culture. Amharic + Oromifa = roots + identity.",
+  "Every Sunday at 8 PM. 10 minutes. Three priorities. That's it.",
+  "Prove something to yourself this week. Just one thing.",
+];
+let qIdx = S.get('qIdx', Math.floor(Math.random()*QUOTES.length));
+function nextQuote(){ qIdx=(qIdx+1)%QUOTES.length; S.set('qIdx',qIdx); document.getElementById('quote-text').textContent=QUOTES[qIdx]; }
+function initQuote(){ document.getElementById('quote-text').textContent=QUOTES[qIdx]; }
+
+// =================== CLOCK ===================
+function updateClock(){
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0'), m=String(now.getMinutes()).padStart(2,'0');
+  const el=document.getElementById('clk'); if(el) el.textContent=h+':'+m;
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const el2=document.getElementById('clk-day'); if(el2) el2.textContent=days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+}
+
+// =================== NAV ===================
+function show(id, btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// =================== SCHEDULE DATA ===================
+const SCHED = {
+  MON:[
+    {t:"5:30",n:"WAKE UP",s:"Water + intentions. No phone for 10 mins.",c:"sleep"},
+    {t:"5:45",n:"STRENGTH TRAINING",s:"Push/Pull/Legs — 30 mins",c:"fitness"},
+    {t:"6:20",n:"Shower + dress",s:"Ready for the day",c:"buffer"},
+    {t:"6:35",n:"BREAKFAST",s:"Amharic audio — 10 mins while eating",c:"meal"},
+    {t:"7:00",n:"DEEP WORK 1 — INK LAB",s:"Design + create products. Phone in other room.",c:"deepwork"},
+    {t:"9:00",n:"Buffer — walk, water, breathe",s:"Step away from screen",c:"buffer"},
+    {t:"9:15",n:"DEEP WORK 2 — CLIENT OUTREACH",s:"DMs, quotes, follow-ups",c:"deepwork"},
+    {t:"11:00",n:"Buffer — snack, reset",s:"Short break",c:"buffer"},
+    {t:"11:15",n:"ADMIN BLOCK",s:"Emails, social posts, Ink Lab marketing",c:"admin"},
+    {t:"12:00",n:"LUNCH",s:"Strategic thinking — no scrolling",c:"meal"},
+    {t:"1:00",n:"Recovery walk — 15 mins",s:"Outside, no earphones",c:"recovery"},
+    {t:"1:15",n:"DEEP WORK 3 — BIZ DEV",s:"Pricing, systems, plot planning",c:"deepwork"},
+    {t:"3:00",n:"Buffer — stretch, water, reset",s:"Energy transition",c:"buffer"},
+    {t:"3:15",n:"SHALLOW WORK",s:"Follow-ups, scheduling, research",c:"admin"},
+    {t:"4:30",n:"PERSONAL GROWTH",s:"Read, podcast, learn a skill",c:"personal"},
+    {t:"5:00",n:"RELATIONSHIP TIME",s:"Call, plan, intentional gesture",c:"relation"},
+    {t:"6:00",n:"DINNER",s:"Recharge — no business talk",c:"meal"},
+    {t:"7:00",n:"FREE TIME",s:"Friends, community, savings group",c:"recovery"},
+    {t:"8:00",n:"LANGUAGE LEARNING",s:"10 mins Amharic app/YouTube",c:"language"},
+    {t:"8:15",n:"DAILY REVIEW",s:"2-min check: did I move forward today?",c:"planning"},
+    {t:"8:45",n:"WIND DOWN",s:"No screens — stretch, music, breathe",c:"sleep"},
+    {t:"9:30",n:"READ / JOURNAL",s:"Books, reflection — no social media",c:"sleep"},
+    {t:"10:30",n:"LIGHTS OUT",s:"7 hours sleep target",c:"sleep"},
   ],
-  TUE: [
-    { time:"5:30", name:"WAKE UP", sub:"Water + intentions. No phone first 10 mins.", cat:"sleep" },
-    { time:"5:45", name:"ACTIVE RECOVERY", sub:"Walk or stretch — 30 mins", cat:"recovery" },
-    { time:"6:20", name:"Shower + dress", sub:"Ready for the day", cat:"buffer" },
-    { time:"6:35", name:"BREAKFAST", sub:"Amharic audio — 10 mins while eating", cat:"meal" },
-    { time:"7:00", name:"DEEP WORK 1 — INK LAB", sub:"Design + create products. Phone in other room.", cat:"deepwork" },
-    { time:"9:00", name:"Buffer — walk, water, breathe", sub:"Step away from screen", cat:"buffer" },
-    { time:"9:15", name:"DEEP WORK 2 — INCOME STREAM 2", sub:"Research + build second income stream", cat:"deepwork" },
-    { time:"11:00", name:"Buffer — snack, reset", sub:"Short break", cat:"buffer" },
-    { time:"11:15", name:"ADMIN BLOCK", sub:"Emails, social posts, Ink Lab marketing", cat:"admin" },
-    { time:"12:00", name:"LUNCH", sub:"Strategic thinking — no scrolling", cat:"meal" },
-    { time:"1:00", name:"Recovery walk — 15 mins", sub:"Outside, no earphones", cat:"recovery" },
-    { time:"1:15", name:"DEEP WORK 3 — INCOME STREAM", sub:"Execute stream 2 actions", cat:"deepwork" },
-    { time:"3:00", name:"Buffer — stretch, water, reset", sub:"Energy transition", cat:"buffer" },
-    { time:"3:15", name:"SHALLOW WORK", sub:"Follow-ups, scheduling, research", cat:"admin" },
-    { time:"4:30", name:"PERSONAL GROWTH", sub:"Read, podcast, learn a skill", cat:"personal" },
-    { time:"5:00", name:"RELATIONSHIP TIME", sub:"Call, plan, intentional gesture", cat:"relation" },
-    { time:"6:00", name:"DINNER", sub:"Recharge — no business talk", cat:"meal" },
-    { time:"7:00", name:"FREE TIME", sub:"Friends, community, rest", cat:"recovery" },
-    { time:"8:00", name:"LANGUAGE LEARNING", sub:"10 mins Amharic app/YouTube", cat:"language" },
-    { time:"8:15", name:"DAILY REVIEW", sub:"2-min check: did I move forward today?", cat:"planning" },
-    { time:"8:45", name:"WIND DOWN", sub:"No screens — stretch, music, breathe", cat:"sleep" },
-    { time:"9:30", name:"READ / JOURNAL", sub:"Books, reflection — no social media", cat:"sleep" },
-    { time:"10:30", name:"LIGHTS OUT", sub:"7 hours sleep target", cat:"sleep" },
+  TUE:[
+    {t:"5:30",n:"WAKE UP",s:"Water + intentions. No phone for 10 mins.",c:"sleep"},
+    {t:"5:45",n:"ACTIVE RECOVERY",s:"Walk or stretch — 30 mins",c:"recovery"},
+    {t:"6:20",n:"Shower + dress",s:"Ready for the day",c:"buffer"},
+    {t:"6:35",n:"BREAKFAST",s:"Amharic audio — 10 mins while eating",c:"meal"},
+    {t:"7:00",n:"DEEP WORK 1 — INK LAB",s:"Design + create products.",c:"deepwork"},
+    {t:"9:00",n:"Buffer — walk, water, breathe",s:"Step away from screen",c:"buffer"},
+    {t:"9:15",n:"DEEP WORK 2 — INCOME STREAM 2",s:"Research + build second income stream",c:"deepwork"},
+    {t:"11:00",n:"Buffer — snack, reset",s:"",c:"buffer"},
+    {t:"11:15",n:"ADMIN BLOCK",s:"Emails, social posts, marketing",c:"admin"},
+    {t:"12:00",n:"LUNCH",s:"Strategic thinking — no scrolling",c:"meal"},
+    {t:"1:00",n:"Recovery walk — 15 mins",s:"Outside, no earphones",c:"recovery"},
+    {t:"1:15",n:"DEEP WORK 3 — INCOME STREAM",s:"Execute stream 2 actions",c:"deepwork"},
+    {t:"3:00",n:"Buffer — stretch, water, reset",s:"",c:"buffer"},
+    {t:"3:15",n:"SHALLOW WORK",s:"Follow-ups, scheduling, research",c:"admin"},
+    {t:"4:30",n:"PERSONAL GROWTH",s:"Read, podcast, learn a skill",c:"personal"},
+    {t:"5:00",n:"RELATIONSHIP TIME",s:"Call, plan, intentional gesture",c:"relation"},
+    {t:"6:00",n:"DINNER",s:"Recharge",c:"meal"},
+    {t:"7:00",n:"FREE TIME",s:"Friends, community, rest",c:"recovery"},
+    {t:"8:00",n:"LANGUAGE LEARNING",s:"10 mins Amharic app/YouTube",c:"language"},
+    {t:"8:15",n:"DAILY REVIEW",s:"2-min check: did I move forward?",c:"planning"},
+    {t:"8:45",n:"WIND DOWN",s:"No screens",c:"sleep"},
+    {t:"9:30",n:"READ / JOURNAL",s:"No social media",c:"sleep"},
+    {t:"10:30",n:"LIGHTS OUT",s:"7 hours sleep target",c:"sleep"},
   ],
-  WED: [
-    { time:"5:30", name:"WAKE UP", sub:"Water + intentions. No phone first 10 mins.", cat:"sleep" },
-    { time:"5:45", name:"STRENGTH TRAINING", sub:"Push/Pull/Legs — 30 mins", cat:"fitness" },
-    { time:"6:20", name:"Shower + dress", sub:"Ready for the day", cat:"buffer" },
-    { time:"6:35", name:"BREAKFAST", sub:"Amharic audio — 10 mins while eating", cat:"meal" },
-    { time:"7:00", name:"DEEP WORK 1 — INK LAB", sub:"Design + create products. Phone in other room.", cat:"deepwork" },
-    { time:"9:00", name:"Buffer — walk, water, breathe", sub:"Step away from screen", cat:"buffer" },
-    { time:"9:15", name:"DEEP WORK 2 — CLIENT OUTREACH", sub:"DMs, quotes, follow-ups", cat:"deepwork" },
-    { time:"11:00", name:"Buffer — snack, reset", sub:"Short break", cat:"buffer" },
-    { time:"11:15", name:"ADMIN BLOCK", sub:"Emails, social posts, Ink Lab marketing", cat:"admin" },
-    { time:"12:00", name:"LUNCH", sub:"Strategic thinking — no scrolling", cat:"meal" },
-    { time:"1:00", name:"Recovery walk — 15 mins", sub:"Outside, no earphones", cat:"recovery" },
-    { time:"1:15", name:"DEEP WORK 3 — BIZ DEV", sub:"Pricing, systems, plot planning", cat:"deepwork" },
-    { time:"3:00", name:"Buffer — stretch, water, reset", sub:"Energy transition", cat:"buffer" },
-    { time:"3:15", name:"SHALLOW WORK", sub:"Follow-ups, scheduling, research", cat:"admin" },
-    { time:"4:30", name:"PERSONAL GROWTH", sub:"Read, podcast, learn a skill", cat:"personal" },
-    { time:"5:00", name:"RELATIONSHIP TIME", sub:"Call, plan, intentional gesture", cat:"relation" },
-    { time:"6:00", name:"DINNER", sub:"Recharge — no business talk", cat:"meal" },
-    { time:"7:00", name:"FREE TIME", sub:"Friends, community, savings group", cat:"recovery" },
-    { time:"8:00", name:"LANGUAGE LEARNING", sub:"10 mins Amharic app/YouTube", cat:"language" },
-    { time:"8:15", name:"DAILY REVIEW", sub:"2-min check: did I move forward today?", cat:"planning" },
-    { time:"8:45", name:"WIND DOWN", sub:"No screens — stretch, music, breathe", cat:"sleep" },
-    { time:"9:30", name:"READ / JOURNAL", sub:"Books, reflection — no social media", cat:"sleep" },
-    { time:"10:30", name:"LIGHTS OUT", sub:"7 hours sleep target", cat:"sleep" },
+  WED:[
+    {t:"5:30",n:"WAKE UP",s:"Water + intentions.",c:"sleep"},
+    {t:"5:45",n:"STRENGTH TRAINING",s:"Push/Pull/Legs — 30 mins",c:"fitness"},
+    {t:"6:20",n:"Shower + dress",s:"",c:"buffer"},
+    {t:"6:35",n:"BREAKFAST",s:"Amharic audio while eating",c:"meal"},
+    {t:"7:00",n:"DEEP WORK 1 — INK LAB",s:"Design + create products.",c:"deepwork"},
+    {t:"9:00",n:"Buffer",s:"Walk, water, breathe",c:"buffer"},
+    {t:"9:15",n:"DEEP WORK 2 — CLIENT OUTREACH",s:"DMs, quotes, follow-ups",c:"deepwork"},
+    {t:"11:00",n:"Buffer — snack, reset",s:"",c:"buffer"},
+    {t:"11:15",n:"ADMIN BLOCK",s:"Emails, social posts, marketing",c:"admin"},
+    {t:"12:00",n:"LUNCH",s:"Strategic thinking",c:"meal"},
+    {t:"1:00",n:"Recovery walk",s:"15 mins outside",c:"recovery"},
+    {t:"1:15",n:"DEEP WORK 3 — BIZ DEV",s:"Pricing, systems, plot planning",c:"deepwork"},
+    {t:"3:00",n:"Buffer",s:"Stretch, water, reset",c:"buffer"},
+    {t:"3:15",n:"SHALLOW WORK",s:"Follow-ups, scheduling",c:"admin"},
+    {t:"4:30",n:"PERSONAL GROWTH",s:"Read, podcast, learn",c:"personal"},
+    {t:"5:00",n:"RELATIONSHIP TIME",s:"Call, plan, intentional gesture",c:"relation"},
+    {t:"6:00",n:"DINNER",s:"",c:"meal"},
+    {t:"7:00",n:"FREE TIME",s:"Friends, community",c:"recovery"},
+    {t:"8:00",n:"LANGUAGE LEARNING",s:"10 mins Amharic",c:"language"},
+    {t:"8:15",n:"DAILY REVIEW",s:"2-min check",c:"planning"},
+    {t:"8:45",n:"WIND DOWN",s:"",c:"sleep"},
+    {t:"9:30",n:"READ / JOURNAL",s:"",c:"sleep"},
+    {t:"10:30",n:"LIGHTS OUT",s:"",c:"sleep"},
   ],
-  THU: [
-    { time:"5:30", name:"WAKE UP", sub:"Water + intentions. No phone first 10 mins.", cat:"sleep" },
-    { time:"5:45", name:"ACTIVE RECOVERY", sub:"Walk or stretch — 30 mins", cat:"recovery" },
-    { time:"6:20", name:"Shower + dress", sub:"Ready for the day", cat:"buffer" },
-    { time:"6:35", name:"BREAKFAST", sub:"Amharic audio — 10 mins while eating", cat:"meal" },
-    { time:"7:00", name:"DEEP WORK 1 — INK LAB", sub:"Design + create products. Phone in other room.", cat:"deepwork" },
-    { time:"9:00", name:"Buffer — walk, water, breathe", sub:"Step away from screen", cat:"buffer" },
-    { time:"9:15", name:"DEEP WORK 2 — INCOME STREAM 2", sub:"Research + build second income stream", cat:"deepwork" },
-    { time:"11:00", name:"Buffer — snack, reset", sub:"Short break", cat:"buffer" },
-    { time:"11:15", name:"ADMIN BLOCK", sub:"Emails, social posts, Ink Lab marketing", cat:"admin" },
-    { time:"12:00", name:"LUNCH", sub:"Strategic thinking — no scrolling", cat:"meal" },
-    { time:"1:00", name:"Recovery walk — 15 mins", sub:"Outside, no earphones", cat:"recovery" },
-    { time:"1:15", name:"DEEP WORK 3 — INCOME STREAM", sub:"Execute stream 2 actions", cat:"deepwork" },
-    { time:"3:00", name:"Buffer — stretch, water, reset", sub:"Energy transition", cat:"buffer" },
-    { time:"3:15", name:"SHALLOW WORK", sub:"Follow-ups, scheduling, research", cat:"admin" },
-    { time:"4:30", name:"PERSONAL GROWTH", sub:"Read, podcast, learn a skill", cat:"personal" },
-    { time:"5:00", name:"RELATIONSHIP TIME", sub:"Call, plan, intentional gesture", cat:"relation" },
-    { time:"6:00", name:"DINNER", sub:"Recharge — no business talk", cat:"meal" },
-    { time:"7:00", name:"FREE TIME", sub:"Friends, community, rest", cat:"recovery" },
-    { time:"8:00", name:"LANGUAGE LEARNING", sub:"10 mins Amharic app/YouTube", cat:"language" },
-    { time:"8:15", name:"DAILY REVIEW", sub:"2-min check: did I move forward today?", cat:"planning" },
-    { time:"8:45", name:"WIND DOWN", sub:"No screens — stretch, music, breathe", cat:"sleep" },
-    { time:"9:30", name:"READ / JOURNAL", sub:"Books, reflection — no social media", cat:"sleep" },
-    { time:"10:30", name:"LIGHTS OUT", sub:"7 hours sleep target", cat:"sleep" },
+  THU:[
+    {t:"5:30",n:"WAKE UP",s:"Water + intentions.",c:"sleep"},
+    {t:"5:45",n:"ACTIVE RECOVERY",s:"Walk or stretch — 30 mins",c:"recovery"},
+    {t:"6:20",n:"Shower + dress",s:"",c:"buffer"},
+    {t:"6:35",n:"BREAKFAST",s:"Amharic audio while eating",c:"meal"},
+    {t:"7:00",n:"DEEP WORK 1 — INK LAB",s:"Design + create products.",c:"deepwork"},
+    {t:"9:00",n:"Buffer",s:"Walk, water, breathe",c:"buffer"},
+    {t:"9:15",n:"DEEP WORK 2 — INCOME STREAM 2",s:"Research + build second stream",c:"deepwork"},
+    {t:"11:00",n:"Buffer",s:"",c:"buffer"},
+    {t:"11:15",n:"ADMIN BLOCK",s:"Emails, social posts",c:"admin"},
+    {t:"12:00",n:"LUNCH",s:"Strategic thinking",c:"meal"},
+    {t:"1:00",n:"Recovery walk",s:"15 mins outside",c:"recovery"},
+    {t:"1:15",n:"DEEP WORK 3 — INCOME STREAM",s:"Execute stream 2 actions",c:"deepwork"},
+    {t:"3:00",n:"Buffer",s:"",c:"buffer"},
+    {t:"3:15",n:"SHALLOW WORK",s:"Follow-ups, scheduling",c:"admin"},
+    {t:"4:30",n:"PERSONAL GROWTH",s:"Read, podcast",c:"personal"},
+    {t:"5:00",n:"RELATIONSHIP TIME",s:"Call, plan, gesture",c:"relation"},
+    {t:"6:00",n:"DINNER",s:"",c:"meal"},
+    {t:"7:00",n:"FREE TIME",s:"",c:"recovery"},
+    {t:"8:00",n:"LANGUAGE LEARNING",s:"10 mins Amharic",c:"language"},
+    {t:"8:15",n:"DAILY REVIEW",s:"2-min check",c:"planning"},
+    {t:"8:45",n:"WIND DOWN",s:"",c:"sleep"},
+    {t:"9:30",n:"READ / JOURNAL",s:"",c:"sleep"},
+    {t:"10:30",n:"LIGHTS OUT",s:"",c:"sleep"},
   ],
-  FRI: [
-    { time:"5:30", name:"WAKE UP", sub:"Water + intentions. No phone first 10 mins.", cat:"sleep" },
-    { time:"5:45", name:"STRENGTH TRAINING", sub:"Push/Pull/Legs — 30 mins", cat:"fitness" },
-    { time:"6:20", name:"Shower + dress", sub:"Ready for the day", cat:"buffer" },
-    { time:"6:35", name:"BREAKFAST", sub:"Amharic audio — 10 mins while eating", cat:"meal" },
-    { time:"7:00", name:"DEEP WORK 1 — INK LAB", sub:"Design + create products. Phone in other room.", cat:"deepwork" },
-    { time:"9:00", name:"Buffer — walk, water, breathe", sub:"Step away from screen", cat:"buffer" },
-    { time:"9:15", name:"DEEP WORK 2 — WEEKLY WRAP-UP", sub:"Close loops from the week", cat:"deepwork" },
-    { time:"11:00", name:"Buffer — snack, reset", sub:"Short break", cat:"buffer" },
-    { time:"11:15", name:"ADMIN BLOCK", sub:"Emails, social posts, Ink Lab marketing", cat:"admin" },
-    { time:"12:00", name:"LUNCH", sub:"Strategic thinking — no scrolling", cat:"meal" },
-    { time:"1:00", name:"Recovery walk — 15 mins", sub:"Outside, no earphones", cat:"recovery" },
-    { time:"1:15", name:"DEEP WORK 3 — WRAP + REVIEW", sub:"Complete all open tasks", cat:"deepwork" },
-    { time:"3:00", name:"Buffer — stretch, water, reset", sub:"Energy transition", cat:"buffer" },
-    { time:"3:15", name:"FINANCIAL REVIEW", sub:"Savings, plot plan, income check", cat:"finance" },
-    { time:"4:30", name:"WEEKLY HABIT REVIEW", sub:"Check streaks, rate the week 1–10", cat:"planning" },
-    { time:"5:00", name:"RELATIONSHIP TIME", sub:"Call, plan, intentional gesture", cat:"relation" },
-    { time:"6:00", name:"DINNER", sub:"Recharge — no business talk", cat:"meal" },
-    { time:"7:00", name:"FREE TIME + CELEBRATE WINS", sub:"Acknowledge what you built this week", cat:"recovery" },
-    { time:"8:00", name:"LANGUAGE LEARNING", sub:"10 mins Amharic app/YouTube", cat:"language" },
-    { time:"8:15", name:"WEEKLY PLANNING PREVIEW", sub:"Set top 3 intentions for next week", cat:"planning" },
-    { time:"8:45", name:"WIND DOWN", sub:"No screens — stretch, music, breathe", cat:"sleep" },
-    { time:"9:30", name:"READ / JOURNAL", sub:"Books, reflection — no social media", cat:"sleep" },
-    { time:"10:30", name:"LIGHTS OUT", sub:"7 hours sleep target", cat:"sleep" },
+  FRI:[
+    {t:"5:30",n:"WAKE UP",s:"Water + intentions.",c:"sleep"},
+    {t:"5:45",n:"STRENGTH TRAINING",s:"Push/Pull/Legs — 30 mins",c:"fitness"},
+    {t:"6:20",n:"Shower + dress",s:"",c:"buffer"},
+    {t:"6:35",n:"BREAKFAST",s:"Amharic audio",c:"meal"},
+    {t:"7:00",n:"DEEP WORK 1 — INK LAB",s:"Design + create products.",c:"deepwork"},
+    {t:"9:00",n:"Buffer",s:"Walk, water, breathe",c:"buffer"},
+    {t:"9:15",n:"DEEP WORK 2 — WEEKLY WRAP",s:"Close loops from the week",c:"deepwork"},
+    {t:"11:00",n:"Buffer",s:"",c:"buffer"},
+    {t:"11:15",n:"ADMIN BLOCK",s:"Emails, social posts",c:"admin"},
+    {t:"12:00",n:"LUNCH",s:"",c:"meal"},
+    {t:"1:00",n:"Recovery walk",s:"15 mins outside",c:"recovery"},
+    {t:"1:15",n:"DEEP WORK 3 — COMPLETE OPEN TASKS",s:"Clear everything from the week",c:"deepwork"},
+    {t:"3:00",n:"Buffer",s:"",c:"buffer"},
+    {t:"3:15",n:"FINANCIAL REVIEW",s:"Savings, plot plan, income check",c:"finance"},
+    {t:"4:30",n:"WEEKLY HABIT REVIEW",s:"Check streaks, rate the week",c:"planning"},
+    {t:"5:00",n:"RELATIONSHIP TIME",s:"Call, plan, date",c:"relation"},
+    {t:"6:00",n:"DINNER",s:"",c:"meal"},
+    {t:"7:00",n:"FREE TIME + CELEBRATE WINS",s:"Acknowledge what you built",c:"recovery"},
+    {t:"8:00",n:"LANGUAGE LEARNING",s:"10 mins Amharic",c:"language"},
+    {t:"8:15",n:"WEEKLY PLANNING PREVIEW",s:"Set 3 intentions for next week",c:"planning"},
+    {t:"8:45",n:"WIND DOWN",s:"",c:"sleep"},
+    {t:"9:30",n:"READ / JOURNAL",s:"",c:"sleep"},
+    {t:"10:30",n:"LIGHTS OUT",s:"",c:"sleep"},
   ],
-  SAT: [
-    { time:"7:00", name:"WAKE UP — Slow morning", sub:"Water, stretch, no rush", cat:"sleep" },
-    { time:"7:30", name:"BREAKFAST", sub:"Fuel for a full Saturday", cat:"meal" },
-    { time:"8:00", name:"STRENGTH TRAINING", sub:"Full session — 45 mins", cat:"fitness" },
-    { time:"8:45", name:"Shower + dress", sub:"Ready for the day", cat:"buffer" },
-    { time:"9:00", name:"INK LAB CREATIVE SESSION", sub:"2 hrs — batch create / new designs", cat:"deepwork" },
-    { time:"11:00", name:"Buffer + snack", sub:"Reset", cat:"buffer" },
-    { time:"11:15", name:"SAVINGS GROUP MEETING", sub:"Plot plan review, financials", cat:"finance" },
-    { time:"12:00", name:"LUNCH", sub:"", cat:"meal" },
-    { time:"1:00", name:"RELATIONSHIP TIME", sub:"Date, call, quality time — 2 hours", cat:"relation" },
-    { time:"3:00", name:"FREE TIME", sub:"Friends, fun, rest — you earned it", cat:"recovery" },
-    { time:"5:00", name:"ADMIN PREP", sub:"Batch Ink Lab posts for the week", cat:"admin" },
-    { time:"6:00", name:"DINNER", sub:"", cat:"meal" },
-    { time:"7:00", name:"SOCIAL / REST", sub:"Friends, family, community", cat:"recovery" },
-    { time:"8:00", name:"LANGUAGE LEARNING", sub:"10 mins Oromifa / Amharic", cat:"language" },
-    { time:"8:15", name:"Wind down, read, journal", sub:"", cat:"sleep" },
-    { time:"9:00", name:"Read — no screens", sub:"", cat:"sleep" },
-    { time:"10:00", name:"LIGHTS OUT", sub:"8 hour target on weekends", cat:"sleep" },
+  SAT:[
+    {t:"7:00",n:"WAKE UP — Slow morning",s:"Water, stretch, no rush",c:"sleep"},
+    {t:"7:30",n:"BREAKFAST",s:"Fuel for the day",c:"meal"},
+    {t:"8:00",n:"STRENGTH TRAINING",s:"Full session — 45 mins",c:"fitness"},
+    {t:"8:45",n:"Shower + dress",s:"",c:"buffer"},
+    {t:"9:00",n:"INK LAB CREATIVE SESSION",s:"2 hrs — batch create / new designs",c:"deepwork"},
+    {t:"11:00",n:"Buffer + snack",s:"",c:"buffer"},
+    {t:"11:15",n:"SAVINGS GROUP MEETING",s:"Plot plan review, financials",c:"finance"},
+    {t:"12:00",n:"LUNCH",s:"",c:"meal"},
+    {t:"1:00",n:"RELATIONSHIP TIME",s:"Date, call, quality time",c:"relation"},
+    {t:"3:00",n:"FREE TIME",s:"Friends, fun, rest",c:"recovery"},
+    {t:"5:00",n:"ADMIN PREP",s:"Batch Ink Lab posts for the week",c:"admin"},
+    {t:"6:00",n:"DINNER",s:"",c:"meal"},
+    {t:"7:00",n:"SOCIAL / REST",s:"Friends, family, community",c:"recovery"},
+    {t:"8:00",n:"LANGUAGE LEARNING",s:"10 mins Oromifa",c:"language"},
+    {t:"8:15",n:"Wind down, read, journal",s:"",c:"sleep"},
+    {t:"9:00",n:"Read — no screens",s:"",c:"sleep"},
+    {t:"10:00",n:"LIGHTS OUT",s:"8 hour target",c:"sleep"},
   ],
-  SUN: [
-    { time:"7:00", name:"WAKE UP — Rest day start", sub:"Gratitude, breathe, reflect", cat:"sleep" },
-    { time:"7:30", name:"BREAKFAST", sub:"Slow, no agenda", cat:"meal" },
-    { time:"8:00", name:"ACTIVE RECOVERY", sub:"Long walk outside — fresh air", cat:"recovery" },
-    { time:"8:45", name:"Shower + ready", sub:"", cat:"buffer" },
-    { time:"9:00", name:"STRATEGIC THINKING", sub:"Reflect on the week, big picture only", cat:"personal" },
-    { time:"11:00", name:"Buffer + snack", sub:"Rest", cat:"buffer" },
-    { time:"11:15", name:"PERSONAL GROWTH", sub:"Read, podcast, watch a talk", cat:"personal" },
-    { time:"12:00", name:"LUNCH", sub:"", cat:"meal" },
-    { time:"1:00", name:"RELATIONSHIP TIME", sub:"Intentional weekly act — non-negotiable", cat:"relation" },
-    { time:"3:00", name:"FREE TIME", sub:"Rest, community, recharge", cat:"recovery" },
-    { time:"5:00", name:"WIND DOWN + LANGUAGE", sub:"10 mins Amharic or Oromifa", cat:"language" },
-    { time:"6:00", name:"DINNER", sub:"", cat:"meal" },
-    { time:"7:00", name:"SOCIAL / REST", sub:"", cat:"recovery" },
-    { time:"8:00", name:"SUNDAY PLANNING SESSION ⚡", sub:"10 mins: Write your 3 priorities for the week", cat:"planning" },
-    { time:"8:15", name:"DAILY + MONTHLY REVIEW", sub:"Last Sunday of month: full 15-min check-in", cat:"planning" },
-    { time:"9:00", name:"Wind down, journal, reflect", sub:"", cat:"sleep" },
-    { time:"10:00", name:"LIGHTS OUT", sub:"Ready for Monday", cat:"sleep" },
+  SUN:[
+    {t:"7:00",n:"WAKE UP — Rest day",s:"Gratitude, breathe, reflect",c:"sleep"},
+    {t:"7:30",n:"BREAKFAST",s:"Slow, no agenda",c:"meal"},
+    {t:"8:00",n:"ACTIVE RECOVERY",s:"Long walk outside",c:"recovery"},
+    {t:"8:45",n:"Shower + ready",s:"",c:"buffer"},
+    {t:"9:00",n:"STRATEGIC THINKING",s:"Big picture — where am I going?",c:"personal"},
+    {t:"11:00",n:"Buffer + snack",s:"",c:"buffer"},
+    {t:"11:15",n:"PERSONAL GROWTH",s:"Read, podcast, watch a talk",c:"personal"},
+    {t:"12:00",n:"LUNCH",s:"",c:"meal"},
+    {t:"1:00",n:"RELATIONSHIP TIME",s:"Intentional weekly act — non-negotiable",c:"relation"},
+    {t:"3:00",n:"FREE TIME",s:"Rest, community, recharge",c:"recovery"},
+    {t:"5:00",n:"WIND DOWN + LANGUAGE",s:"10 mins Amharic or Oromifa",c:"language"},
+    {t:"6:00",n:"DINNER",s:"",c:"meal"},
+    {t:"7:00",n:"SOCIAL / REST",s:"",c:"recovery"},
+    {t:"8:00",n:"⚡ SUNDAY PLANNING SESSION",s:"10 mins: write your 3 priorities for the week",c:"planning"},
+    {t:"8:15",n:"DAILY + MONTHLY REVIEW",s:"Last Sunday of month: full 15-min check-in",c:"planning"},
+    {t:"9:00",n:"Wind down, journal",s:"",c:"sleep"},
+    {t:"10:00",n:"LIGHTS OUT",s:"Ready for Monday",c:"sleep"},
   ]
 };
 
-const goals = [
-  { name:"Galu Ink Lab", sub:"10 paying customers", icon:"🖨", color:"#1dbe8a", deadline:"Jun 2026", pct:5, actions:["Turn on machine this week","Post first design online","Message 5 potential customers"] },
-  { name:"Find your wife", sub:"Commit to your relationship", icon:"💍", color:"#e87faa", deadline:"Dec 2026", pct:10, actions:["One intentional act weekly","Be present, not passive","Define where you're heading together"] },
-  { name:"Multiple income streams", sub:"2 sources running", icon:"💰", color:"#e8a030", deadline:"Sep 2026", pct:5, actions:["List 3 income ideas this week","Pick one, start research","Weekly dedicated deep work block"] },
-  { name:"Get physically fit", sub:"Consistent 3x/week routine", icon:"💪", color:"#4a9fe8", deadline:"Mar 2026", pct:15, actions:["10 pushups every morning","Mon/Wed/Fri strength training","No skipping — 2-minute rule if tired"] },
-  { name:"Learn Amharic + Oromifa", sub:"Basic conversational level", icon:"🗣", color:"#9b7fe8", deadline:"Dec 2026", pct:5, actions:["Download app today","10 mins every night","Amharic first, Oromifa at month 3"] },
-  { name:"Build your life system", sub:"Sunday planning locked in", icon:"📋", color:"#e05050", deadline:"Feb 2026", pct:20, actions:["Every Sunday 8:00 PM — 10 mins","Write exactly 3 priorities","Review daily in 2 minutes"] },
-];
+const DAYS_ORDER=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+let activeDay=(()=>{ const map={0:'SUN',1:'MON',2:'TUE',3:'WED',4:'THU',5:'FRI',6:'SAT'}; return map[new Date().getDay()]; })();
 
-const habits = [
-  { name:"Sunday Planning Session", cat:"planning", key:"planning" },
-  { name:"Morning Movement", cat:"fitness", key:"fitness" },
-  { name:"Deep Work — Ink Lab (30 min)", cat:"deepwork", key:"inklab" },
-  { name:"Language Learning (10 min)", cat:"language", key:"lang" },
-  { name:"No highs before noon", cat:"recovery", key:"nohigh" },
-  { name:"Intentional relationship act", cat:"relation", key:"relation" },
-];
-
-const rules = [
-  { num:"Rule 01", title:"The Never Miss Twice Law", color:"teal",
-    body:"Missing one block is human. Missing two in a row is a new bad habit forming. The moment you slip, your ONLY job is to restart the very next scheduled block — no guilt, no spiral, just restart." },
-  { num:"Rule 02", title:"The 1-Hour Recovery Reset", color:"blue",
-    body:"If you lose an entire day, don't try to cram everything in. Run the Reset Protocol:\n• 20 mins fitness OR walk\n• 20 mins Ink Lab (open the file, do anything)\n• 20 mins planning (write 3 priorities)\nThat's it. Day reset. Move forward." },
-  { num:"Rule 03", title:"Interruption Protocol", color:"amber",
-    body:"• Unexpected call during Deep Work: write it down, assign it to Admin block, return immediately.\n• Urgent situation: deal with it, note the time lost, reduce shallow work by that amount — never deep work.\n• Energy crash: use the 1:00 PM recovery walk first. If still low, do 5 min breathing then continue.\n• Feeling high during a block: do the 2-minute version. Open the file. Start one thing. Momentum follows." },
-  { num:"Rule 04", title:"Priority Hierarchy", color:"teal",
-    body:"When time is short, protect in this order:\n1st → Deep Work Block 1 (Ink Lab — always sacred)\n2nd → Sunday Planning Session\n3rd → Fitness\n4th → Language Learning\n5th → Everything else" },
-  { num:"Rule 05", title:"The Phone Protocol", color:"purple",
-    body:"• 5:30–7:00 AM: Phone face down, only alarm allowed.\n• 7:00–11:00 AM: Phone in another room during Deep Work.\n• Admin block ONLY: social media, DMs, replies.\n• After 9:30 PM: Phone charging in another room — no exceptions." },
-  { num:"Rule 06", title:"The Morning Boundary", color:"red",
-    body:"No highs before noon. This is the one rule that protects your most productive hours. Mornings belong to Galu Ink Lab. Evenings are yours — you earn them by showing up in the morning." },
-  { num:"Rule 07", title:"Weekly Slip Scoring", color:"amber",
-    body:"Every Friday at 4:30 PM, score your week:\n• 7/7 = Perfect week — acknowledge it.\n• 5–6/7 = Strong week — identify what caused the slip.\n• 3–4/7 = Rough week — run the Reset Protocol on Sunday.\n• Below 3/7 = No judgment. Identify the ONE block that would have changed everything. Protect it next week." },
-  { num:"Rule 08", title:"Sunday Planning is Sacred", color:"teal",
-    body:"Every Sunday at 8:00 PM — exactly 10 minutes:\n• Step 1: Write your top 3 priorities (not 20 — exactly 3).\n• Step 2: Check which goals need to be pushed forward.\n• Step 3: Ask out loud: 'Did I prove something to myself last week?'" },
-  { num:"Rule 09", title:"Energy Management", color:"purple",
-    body:"• 5:30 AM – 12:00 PM: Peak energy → ALL Deep Work here\n• 12:00 PM – 3:00 PM: Trough → Lunch, walk, shallow admin\n• 3:00 PM – 6:00 PM: Rebound → Shallow work, personal growth, relationship\n• 6:00 PM – 10:30 PM: Wind down → Meals, free time, language, sleep prep" },
-];
-
-const nextSteps = [
-  { done:false, text:"Download a language app. Set it as your home screen." },
-  { done:false, text:"10 pushups tomorrow morning before anything else." },
-  { done:false, text:"Turn on the heat press machine. Make one thing this week." },
-  { done:false, text:"This Sunday: first planning session. Write 3 priorities only." },
-  { done:false, text:"Tell your savings group — set a 2026 milestone for the plot." },
-];
-
-// =================== STATE ===================
-let activeDay = 'MON';
-const habitState = {}; // key -> [0..2] per day
-habits.forEach(h => { habitState[h.key] = [0,0,0,0,0,0,0]; });
-const goalPct = {};
-goals.forEach(g => { goalPct[g.name] = g.pct; });
-const nextStepsDone = nextSteps.map(() => false);
-
-// =================== CLOCK ===================
-function updateClock() {
-  const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('clock-time').textContent = h + ':' + m;
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('clock-day').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
-}
-updateClock();
-setInterval(updateClock, 10000);
-
-// =================== GOALS STATS ===================
-function updateGoalStats() {
-  const now = new Date();
-  const start = new Date('2026-01-01');
-  const end = new Date('2026-12-31');
-  const elapsed = Math.max(0, Math.floor((now - start) / 86400000));
-  const left = Math.max(0, Math.ceil((end - now) / 86400000));
-  const q = now.getMonth() < 3 ? 'Q1' : now.getMonth() < 6 ? 'Q2' : now.getMonth() < 9 ? 'Q3' : 'Q4';
-  const qFocus = { Q1:'Start & Stabilize', Q2:'Scale & Add', Q3:'Optimize', Q4:'Review & Complete' };
-  document.getElementById('days-elapsed').textContent = elapsed > 0 ? elapsed : '—';
-  document.getElementById('days-left').textContent = left > 0 ? left : '—';
-  document.getElementById('current-q').textContent = q;
-  document.getElementById('q-focus').textContent = qFocus[q];
-}
-updateGoalStats();
-
-// =================== SECTION SWITCHER ===================
-function showSection(id, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('section-' + id).classList.add('active');
-  btn.classList.add('active');
+function getCurrentBlock(day){
+  const now=new Date(); const cur=now.getHours()*60+now.getMinutes();
+  const map={0:'SUN',1:'MON',2:'TUE',3:'WED',4:'THU',5:'FRI',6:'SAT'};
+  if(map[now.getDay()]!==day) return -1;
+  let idx=-1;
+  SCHED[day].forEach((b,i)=>{ const[h,m]=b.t.split(':').map(Number); if(h*60+m<=cur) idx=i; });
+  return idx;
 }
 
-// =================== CURRENT TIME HELPER ===================
-function getCurrentBlock(day) {
-  const now = new Date();
-  const curMin = now.getHours() * 60 + now.getMinutes();
-  const dayMap = { 0:'SUN',1:'MON',2:'TUE',3:'WED',4:'THU',5:'FRI',6:'SAT' };
-  const todayKey = dayMap[now.getDay()];
-  if (todayKey !== day) return -1;
-  const blocks = schedule[day];
-  let current = -1;
-  for (let i = 0; i < blocks.length; i++) {
-    const [h, m] = blocks[i].time.split(':').map(Number);
-    const blockMin = h * 60 + m;
-    if (blockMin <= curMin) current = i;
-  }
-  return current;
-}
-
-// =================== RENDER SCHEDULE ===================
-function renderSchedule() {
-  // Day nav
-  const dayNav = document.getElementById('day-nav');
-  dayNav.innerHTML = '';
-  DAYS.forEach(d => {
-    const btn = document.createElement('button');
-    btn.className = 'day-btn' + (d === activeDay ? ' active' : '');
-    btn.textContent = d;
-    btn.onclick = () => { activeDay = d; renderSchedule(); };
-    dayNav.appendChild(btn);
+function renderSchedule(){
+  const nav=document.getElementById('day-nav'); nav.innerHTML='';
+  DAYS_ORDER.forEach(d=>{
+    const btn=document.createElement('button'); btn.className='db'+(d===activeDay?' active':'');
+    btn.textContent=d; btn.onclick=()=>{ activeDay=d; renderSchedule(); }; nav.appendChild(btn);
   });
-
-  const blocks = schedule[activeDay];
-  const currentIdx = getCurrentBlock(activeDay);
-
-  let html = `<table class="schedule-table">
-    <thead><tr>
-      <th>TIME</th>
-      <th>${activeDay === 'SAT' ? 'SATURDAY' : activeDay === 'SUN' ? 'SUNDAY' : activeDay}</th>
-    </tr></thead><tbody>`;
-
-  blocks.forEach((b, i) => {
-    const isCurrent = i === currentIdx;
-    const nowBadge = isCurrent ? `<span class="now-badge"><span class="now-dot"></span>NOW</span>` : '';
-    html += `<tr class="time-row${isCurrent ? ' current-block' : ''}">
-      <td class="time-cell">${b.time}</td>
-      <td class="block-cell">
-        <div class="block-pill pill-${b.cat}">${b.cat.toUpperCase()}</div>
-        <div class="block-name cat-${b.cat}">${b.name}${nowBadge}</div>
-        ${b.sub ? `<div class="block-sub">${b.sub}</div>` : ''}
-      </td>
-    </tr>`;
+  const blocks=SCHED[activeDay]; const curIdx=getCurrentBlock(activeDay);
+  let html=`<table class="sched-tbl"><thead><tr><th>TIME</th><th>${activeDay}</th></tr></thead><tbody>`;
+  blocks.forEach((b,i)=>{
+    const now=i===curIdx;
+    html+=`<tr class="s-row${now?' now':''}">
+      <td class="s-time">${b.t}</td>
+      <td class="s-cell">
+        <span class="pill pill-${b.c}" style="margin-bottom:3px;">${b.c.toUpperCase()}</span>
+        <div class="s-name cat-${b.c}">${b.n}${now?`<span class="now-badge"><span class="now-dot"></span>NOW</span>`:''}</div>
+        ${b.s?`<div class="s-sub">${b.s}</div>`:''}
+      </td></tr>`;
   });
-
-  html += '</tbody></table>';
-  document.getElementById('schedule-content').innerHTML = html;
-
-  // Scroll to current block
-  if (currentIdx >= 0) {
-    setTimeout(() => {
-      const currentRow = document.querySelector('.current-block');
-      if (currentRow) currentRow.scrollIntoView({ behavior:'smooth', block:'center' });
-    }, 100);
-  }
+  html+='</tbody></table>';
+  document.getElementById('sched-out').innerHTML=html;
+  if(curIdx>=0){ setTimeout(()=>{ const r=document.querySelector('.s-row.now'); if(r) r.scrollIntoView({behavior:'smooth',block:'center'}); },150); }
 }
 
-// Auto-select today's day
-function setTodayDay() {
-  const dayMap = { 0:'SUN',1:'MON',2:'TUE',3:'WED',4:'THU',5:'FRI',6:'SAT' };
-  const today = dayMap[new Date().getDay()];
-  if (DAYS.includes(today)) activeDay = today;
-}
-setTodayDay();
+// =================== GOALS ===================
+const GOALS=[
+  {n:"Galu Ink Lab",s:"10 paying customers",i:"🖨",c:"#1dbe8a",dl:"Jun 2026",actions:["Turn on machine this week","Post first design online","Message 5 potential customers"]},
+  {n:"Find your wife",s:"Commit to your relationship",i:"💍",c:"#e87faa",dl:"Dec 2026",actions:["One intentional act weekly","Be present, not passive","Define where you're heading together"]},
+  {n:"Multiple income streams",s:"2 sources running",i:"💰",c:"#e8a030",dl:"Sep 2026",actions:["List 3 income ideas","Pick one and start research","Weekly dedicated deep work block"]},
+  {n:"Get physically fit",s:"Consistent 3x/week routine",i:"💪",c:"#4a9fe8",dl:"Mar 2026",actions:["10 pushups every morning","Mon/Wed/Fri strength","No skipping — 2-min rule if tired"]},
+  {n:"Learn Amharic + Oromifa",s:"Basic conversational level",i:"🗣",c:"#9b7fe8",dl:"Dec 2026",actions:["Download app today","10 mins every night","Amharic first, Oromifa at month 3"]},
+  {n:"Build your life system",s:"Sunday planning locked in",i:"📋",c:"#e05050",dl:"Feb 2026",actions:["Every Sunday 8PM — 10 mins","Write exactly 3 priorities","Daily 2-min review"]},
+];
+let goalPcts=S.get('goalPcts',{});
 
-// =================== RENDER GOALS ===================
-function renderGoals() {
-  const grid = document.getElementById('goals-grid');
-  grid.innerHTML = '';
-  goals.forEach(g => {
-    const pct = goalPct[g.name];
-    const card = document.createElement('div');
-    card.className = 'goal-card';
-    card.innerHTML = `
-      <div class="goal-icon">${g.icon}</div>
-      <div class="goal-name">${g.name}</div>
-      <div style="font-size:0.68rem; color:var(--text2); margin-bottom:0.5rem;">${g.sub}</div>
-      <div class="goal-deadline">${g.deadline}</div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:${pct}%; background:${g.color};"></div>
-      </div>
-      <div class="progress-label">
+function renderGoals(){
+  const now=new Date(); const s=new Date('2026-01-01'); const e=new Date('2026-12-31');
+  const elapsed=Math.max(0,Math.floor((now-s)/86400000));
+  const left=Math.max(0,Math.ceil((e-now)/86400000));
+  const qs=['Q1','Q2','Q3','Q4'][Math.min(3,Math.floor(now.getMonth()/3))];
+  const qf={Q1:'Start & Stabilize',Q2:'Scale & Add',Q3:'Optimize',Q4:'Review & Complete'};
+  document.getElementById('goal-stats').innerHTML=`
+    <div class="stat"><div class="stat-lbl">Active Goals</div><div class="stat-val">6</div></div>
+    <div class="stat"><div class="stat-lbl">Days Elapsed</div><div class="stat-val">${elapsed||'—'}</div><div class="stat-sub">since Jan 1</div></div>
+    <div class="stat"><div class="stat-lbl">Days Left</div><div class="stat-val">${left||'—'}</div><div class="stat-sub">in 2026</div></div>
+    <div class="stat"><div class="stat-lbl">Quarter</div><div class="stat-val">${qs}</div><div class="stat-sub">${qf[qs]}</div></div>`;
+  const grid=document.getElementById('goals-out'); grid.innerHTML='';
+  GOALS.forEach(g=>{
+    const pct=goalPcts[g.n]||0;
+    const card=document.createElement('div'); card.className='goal-card';
+    card.innerHTML=`<div class="g-icon">${g.i}</div>
+      <div class="g-name">${g.n}</div>
+      <div class="g-sub">${g.s}</div>
+      <div class="g-dl">${g.dl}</div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${g.c};"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text3);margin-top:3px;">
         <span>Progress</span>
-        <span style="display:flex; align-items:center; gap:4px;">
-          <input class="goal-input" type="number" min="0" max="100" value="${pct}" data-goal="${g.name}" style="width:45px;">%
-        </span>
+        <span><input class="pct-input" type="number" min="0" max="100" value="${pct}" data-g="${g.n}"> %</span>
       </div>
-      <div style="margin-top:0.8rem; border-top:1px solid var(--border); padding-top:0.75rem;">
-        <div style="font-size:0.55rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); margin-bottom:0.4rem;">Next actions</div>
-        ${g.actions.map(a => `<div style="font-size:0.62rem; color:var(--text2); padding:2px 0; line-height:1.6;">→ ${a}</div>`).join('')}
-      </div>
-    `;
+      <div class="g-actions"><div class="g-action-lbl">Next actions</div>${g.actions.map(a=>`<div class="g-action-item">→ ${a}</div>`).join('')}</div>`;
     grid.appendChild(card);
   });
-
-  document.querySelectorAll('.goal-input').forEach(input => {
-    input.addEventListener('input', e => {
-      const name = e.target.dataset.goal;
-      const val = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
-      goalPct[name] = val;
-      const fill = e.target.closest('.goal-card').querySelector('.progress-fill');
-      if (fill) fill.style.width = val + '%';
+  document.querySelectorAll('.pct-input').forEach(inp=>{
+    inp.addEventListener('input',e=>{
+      const gn=e.target.dataset.g; const v=Math.min(100,Math.max(0,parseInt(e.target.value)||0));
+      goalPcts[gn]=v; S.set('goalPcts',goalPcts);
+      const fill=e.target.closest('.goal-card').querySelector('.prog-fill');
+      if(fill) fill.style.width=v+'%';
     });
   });
 }
 
-// =================== RENDER HABITS ===================
-function renderHabits() {
-  const wrap = document.getElementById('habits-wrap');
-  wrap.innerHTML = '';
-  const dayLabels = ['M','T','W','T','F','S','S'];
+// =================== HABITS ===================
+const HABITS=[
+  {n:"Sunday Planning Session",c:"planning",k:"planning"},
+  {n:"Morning Movement",c:"fitness",k:"fitness"},
+  {n:"Deep Work — Ink Lab (30 min)",c:"deepwork",k:"inklab"},
+  {n:"Language Learning (10 min)",c:"language",k:"lang"},
+  {n:"No highs before noon",c:"recovery",k:"nohigh"},
+  {n:"Intentional relationship act",c:"relation",k:"relation"},
+];
+let habitState=S.get('habitState',{});
+HABITS.forEach(h=>{ if(!habitState[h.k]) habitState[h.k]=[0,0,0,0,0,0,0]; });
+const DAY_LBL=['M','T','W','T','F','S','S'];
 
-  habits.forEach(h => {
-    const card = document.createElement('div');
-    card.className = 'habit-card';
-
-    const done = habitState[h.key].filter(v => v === 1).length;
-    const pct = Math.round((done / 7) * 100);
-
-    card.innerHTML = `
-      <div class="habit-header">
-        <div class="habit-name cat-${h.cat}">${h.name}</div>
-        <div class="streak-count">${done}/7</div>
-      </div>
-      <div class="dots-row" id="dots-${h.key}">
-        ${habitState[h.key].map((v, i) => `
-          <div class="day-dot${v===1?' done':v===2?' missed':''}" data-key="${h.key}" data-idx="${i}">
-            ${v === 0 ? `<span>${dayLabels[i]}</span>` : ''}
-          </div>
-        `).join('')}
-      </div>
-      <div class="week-score">${pct}% this week${done >= 5 ? ' 🔥' : done >= 3 ? ' 📈' : ''}</div>
-    `;
+function renderHabits(){
+  const wrap=document.getElementById('habits-out'); wrap.innerHTML='';
+  HABITS.forEach(h=>{
+    const done=habitState[h.k].filter(v=>v===1).length;
+    const card=document.createElement('div'); card.className='habit-card';
+    card.innerHTML=`<div class="h-hdr"><div class="h-name cat-${h.c}">${h.n}</div><div class="h-streak">${done}/7</div></div>
+      <div class="dots">${habitState[h.k].map((v,i)=>`
+        <div class="dot${v===1?' done':v===2?' miss':''}" data-k="${h.k}" data-i="${i}">
+          ${v===0?`<span>${DAY_LBL[i]}</span>`:''}
+        </div>`).join('')}</div>
+      <div class="h-score">${Math.round(done/7*100)}% this week${done>=6?' 🔥':done>=4?' 📈':''}</div>`;
     wrap.appendChild(card);
   });
-
-  document.querySelectorAll('.day-dot').forEach(dot => {
-    dot.addEventListener('click', e => {
-      const key = dot.dataset.key;
-      const idx = parseInt(dot.dataset.idx);
-      habitState[key][idx] = (habitState[key][idx] + 1) % 3;
+  document.querySelectorAll('.dot').forEach(d=>{
+    d.addEventListener('click',()=>{
+      const k=d.dataset.k, i=parseInt(d.dataset.i);
+      habitState[k][i]=(habitState[k][i]+1)%3;
+      S.set('habitState',habitState);
       renderHabits();
-      renderWeekScore();
     });
   });
-
-  renderWeekScore();
+  // Week score
+  const total=HABITS.length*7;
+  let done=0; HABITS.forEach(h=>{ done+=habitState[h.k].filter(v=>v===1).length; });
+  const pct=Math.round(done/total*100);
+  const msgs=['🔄 Below target. Find the ONE block that changes everything.',
+    '⚡ Rough week. Run the Reset Protocol on Sunday.',
+    '📈 Strong week. Identify what caused the gaps.',
+    '🔥 Exceptional. This is who you are now.'];
+  const mi=pct>=85?3:pct>=60?2:pct>=35?1:0;
+  document.getElementById('week-score').innerHTML=`
+    <div style="font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:var(--teal);margin-bottom:4px;">${pct}% — ${done}/${total} habit-days</div>
+    <div style="font-size:0.68rem;color:var(--text2);">${msgs[mi]}</div>`;
 }
 
-function renderWeekScore() {
-  const totalPossible = habits.length * 7;
-  let totalDone = 0;
-  habits.forEach(h => { totalDone += habitState[h.key].filter(v => v === 1).length; });
-  const pct = Math.round((totalDone / totalPossible) * 100);
-  let msg = '';
-  if (pct >= 90) msg = '🔥 Exceptional week. This is who you are now.';
-  else if (pct >= 70) msg = '📈 Strong week. Identify what caused the gaps.';
-  else if (pct >= 40) msg = '⚡ Rough week. Run the Sunday Reset Protocol.';
-  else msg = '🔄 Below target. Find the ONE block that would change everything.';
-
-  document.getElementById('week-score-summary').innerHTML = `
-    <div style="font-family:var(--font-head); font-size:1.4rem; font-weight:800; color:var(--teal); margin-bottom:0.3rem;">${pct}% — ${totalDone}/${totalPossible} habit-days completed</div>
-    <div style="color:var(--text2);">${msg}</div>
-  `;
-}
-
-// =================== RENDER RULES ===================
-function renderRules() {
-  const list = document.getElementById('rules-list');
-  list.innerHTML = '';
-  rules.forEach(r => {
-    const card = document.createElement('div');
-    card.className = 'rule-card';
-    card.dataset.color = r.color;
-    card.innerHTML = `
-      <div class="rule-header" onclick="this.closest('.rule-card').classList.toggle('open')">
-        <div>
-          <div class="rule-num">${r.num}</div>
-          <div class="rule-title">${r.title}</div>
-        </div>
-        <div class="rule-toggle">▼</div>
+// =================== INK LAB ===================
+let customers=S.get('customers',[]);
+function renderInkLabStats(){
+  const total=customers.length;
+  const paid=customers.filter(c=>c.status==='paid').length;
+  const rev=customers.filter(c=>c.status==='paid'||c.status==='completed').reduce((a,c)=>a+(parseInt(c.amt)||0),0);
+  const inprog=customers.filter(c=>c.status==='in-progress'||c.status==='confirmed').length;
+  document.getElementById('inklab-stats').innerHTML=`
+    <div class="stat"><div class="stat-lbl">Total Customers</div><div class="stat-val">${total}</div><div class="stat-sub">Goal: 10</div></div>
+    <div class="stat"><div class="stat-lbl">Paid / Done</div><div class="stat-val">${paid}</div></div>
+    <div class="stat"><div class="stat-lbl">Revenue (KES)</div><div class="stat-val" style="font-size:1.1rem;">${rev.toLocaleString()}</div></div>
+    <div class="stat"><div class="stat-lbl">In Progress</div><div class="stat-val">${inprog}</div></div>`;
+  const prog=Math.min(100,Math.round(total/10*100));
+  // Render list
+  const list=document.getElementById('customer-list');
+  if(!customers.length){ list.innerHTML='<div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No customers yet. Add your first one above. 🚀</div>'; return; }
+  list.innerHTML=customers.map((c,i)=>{
+    const statusColors={inquiry:'var(--text3)',confirmed:'var(--blue)',['in-progress']:'var(--amber)',completed:'var(--teal)',paid:'var(--green)'};
+    return `<div class="c-item">
+      <div class="c-num">${i+1}</div>
+      <div class="c-info">
+        <div class="c-name">${c.name}</div>
+        <div class="c-detail">${c.item}${c.amt?` · KES ${parseInt(c.amt).toLocaleString()}`:''}</div>
+        ${c.notes?`<div class="c-detail" style="font-style:italic;">${c.notes}</div>`:''}
       </div>
-      <div class="rule-body">${r.body.replace(/\n/g,'<br>')}</div>
-    `;
-    list.appendChild(card);
+      <div class="c-status"><span class="pill" style="background:rgba(0,0,0,0.2);color:${statusColors[c.status]||'var(--text2)'};">${c.status}</span></div>
+      <button class="c-del" onclick="delCustomer(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+function addCustomer(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name) return;
+  customers.push({
+    name, item:document.getElementById('c-item').value.trim(),
+    amt:document.getElementById('c-amt').value,
+    status:document.getElementById('c-status').value,
+    notes:document.getElementById('c-notes').value.trim(),
+    date:new Date().toISOString().split('T')[0]
+  });
+  S.set('customers',customers);
+  ['c-name','c-item','c-amt','c-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('c-status').value='inquiry';
+  renderInkLabStats();
+}
+function delCustomer(i){ if(confirm('Remove this customer?')){ customers.splice(i,1); S.set('customers',customers); renderInkLabStats(); } }
+
+// =================== MONEY ===================
+let transactions=S.get('transactions',[]);
+let savingsGoal=S.get('savingsGoal',0);
+function calcTotals(){
+  const saved=transactions.filter(t=>t.type==='savings'||t.type==='income').reduce((a,t)=>a+(parseFloat(t.amt)||0),0);
+  const spent=transactions.filter(t=>t.type==='expense').reduce((a,t)=>a+(parseFloat(t.amt)||0),0);
+  return {saved,spent};
+}
+function renderMoney(){
+  const {saved}=calcTotals();
+  document.getElementById('total-saved').textContent=`KES ${saved.toLocaleString()}`;
+  document.getElementById('savings-goal-disp').textContent=`KES ${(savingsGoal||0).toLocaleString()}`;
+  const pct=savingsGoal>0?Math.min(100,Math.round(saved/savingsGoal*100)):0;
+  document.getElementById('savings-prog').style.width=pct+'%';
+  document.getElementById('savings-pct-label').textContent=savingsGoal>0?`${pct}% of goal`:'Set a goal above';
+  const list=document.getElementById('tx-list');
+  if(!transactions.length){ list.innerHTML='<div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No transactions yet.</div>'; return; }
+  const typeColor={savings:'var(--teal)',income:'var(--green)',expense:'var(--red)',plot:'var(--amber)'};
+  list.innerHTML=[...transactions].reverse().map((t,ri)=>{
+    const i=transactions.length-1-ri;
+    const sign=t.type==='expense'?'-':'+';
+    return `<div class="tx-item">
+      <div><div class="tx-desc">${t.desc}</div><div style="display:flex;gap:0.5rem;margin-top:2px;"><span class="pill" style="background:rgba(0,0,0,0.15);color:${typeColor[t.type]||'var(--text2)'};">${t.type}</span><span class="tx-date">${t.date}</span></div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="tx-amt" style="color:${t.type==='expense'?'var(--red)':'var(--teal)'};">${sign}KES ${parseFloat(t.amt).toLocaleString()}</div>
+        <button class="tx-del" onclick="delTx(${i})">✕</button>
+      </div></div>`;
+  }).join('');
+}
+function setSavingsGoal(){ const v=parseInt(document.getElementById('s-goal').value)||0; savingsGoal=v; S.set('savingsGoal',v); renderMoney(); }
+function addTransaction(){
+  const desc=document.getElementById('tx-desc').value.trim(); const amt=document.getElementById('tx-amt').value;
+  if(!desc||!amt) return;
+  transactions.push({desc,amt,type:document.getElementById('tx-type').value,date:document.getElementById('tx-date').value||new Date().toISOString().split('T')[0]});
+  S.set('transactions',transactions);
+  document.getElementById('tx-desc').value=''; document.getElementById('tx-amt').value='';
+  renderMoney();
+}
+function delTx(i){ if(confirm('Delete transaction?')){ transactions.splice(i,1); S.set('transactions',transactions); renderMoney(); } }
+
+// =================== WORKOUT ===================
+let workouts=S.get('workouts',[]);
+function renderWorkout(){
+  const thisWeek=workouts.filter(w=>{ const d=new Date(w.date); const now=new Date(); const diff=(now-d)/86400000; return diff<7; });
+  const totalSessions=workouts.filter(w=>w.type==='strength').length;
+  document.getElementById('wo-stats').innerHTML=`
+    <div class="stat"><div class="stat-lbl">This Week</div><div class="stat-val">${thisWeek.length}</div><div class="stat-sub">sessions</div></div>
+    <div class="stat"><div class="stat-lbl">Total Sessions</div><div class="stat-val">${workouts.length}</div></div>
+    <div class="stat"><div class="stat-lbl">Strength</div><div class="stat-val">${totalSessions}</div><div class="stat-sub">all time</div></div>`;
+  const list=document.getElementById('wo-list');
+  if(!workouts.length){ list.innerHTML='<div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No workouts logged yet. Start tomorrow at 5:45 AM. 💪</div>'; return; }
+  const typeColor={strength:'var(--amber)',cardio:'var(--teal)',recovery:'var(--text2)',flexibility:'var(--purple)'};
+  list.innerHTML=[...workouts].reverse().map((w,ri)=>{
+    const i=workouts.length-1-ri;
+    return `<div class="exercise-item">
+      <div class="ex-info" style="flex:1;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:2px;">
+          <span class="pill" style="background:rgba(0,0,0,0.15);color:${typeColor[w.type]||'var(--text2)'};">${w.type}</span>
+          <span style="font-size:0.58rem;color:var(--text3);">${w.date}</span>
+        </div>
+        <div class="ex-name">${w.name}</div>
+        ${w.detail?`<div class="ex-details">${w.detail}</div>`:''}
+        ${w.notes?`<div class="ex-details" style="font-style:italic;color:var(--text3);">${w.notes}</div>`:''}
+      </div>
+      <button class="ex-del" onclick="delWorkout(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+function addExercise(){
+  const name=document.getElementById('ex-name').value.trim(); if(!name) return;
+  workouts.push({name,detail:document.getElementById('ex-detail').value.trim(),type:document.getElementById('ex-type').value,date:document.getElementById('ex-date').value||new Date().toISOString().split('T')[0],notes:document.getElementById('ex-notes').value.trim()});
+  S.set('workouts',workouts);
+  ['ex-name','ex-detail','ex-notes'].forEach(id=>document.getElementById(id).value='');
+  renderWorkout();
+}
+function delWorkout(i){ if(confirm('Delete workout?')){ workouts.splice(i,1); S.set('workouts',workouts); renderWorkout(); } }
+
+// =================== LANGUAGE ===================
+let langProgress=S.get('langProgress',{amharic:[],oromifa:[]});
+let vocab=S.get('vocab',[]);
+
+function renderLanguage(){
+  const langs=[
+    {k:'amharic',n:'Amharic',c:'#9b7fe8',emoji:'🇪🇹',phase:'Start: months 1–6'},
+    {k:'oromifa',n:'Oromifa',c:'#e8a030',emoji:'🌍',phase:'Add at month 3'},
+  ];
+  const cards=document.getElementById('lang-cards'); cards.innerHTML='';
+  langs.forEach(l=>{
+    const days=langProgress[l.k]||[];
+    const streak=calcStreak(days);
+    const total=days.length;
+    // Show last 30 days grid
+    const now=new Date(); const dots=[];
+    for(let i=29;i>=0;i--){ const d=new Date(now); d.setDate(d.getDate()-i); dots.push(d.toISOString().split('T')[0]); }
+    const card=document.createElement('div'); card.className='lang-card';
+    card.innerHTML=`<div class="lang-name" style="color:${l.c};">${l.emoji} ${l.n}</div>
+      <div class="lang-streak">Streak: <span>${streak} days</span> · Total: <span>${total} sessions</span></div>
+      <div style="font-size:0.58rem;color:var(--text3);margin-bottom:0.5rem;">${l.phase}</div>
+      <div class="lang-dots">${dots.map(d=>`<div class="lang-dot${days.includes(d)?' done':''}" title="${d}" style="${days.includes(d)?`background:${l.c}`:''}" onclick="toggleLang('${l.k}','${d}')"></div>`).join('')}</div>
+      <div style="font-size:0.58rem;color:var(--text3);margin-top:4px;">← 30 days · tap to mark done</div>
+      <button class="btn btn-sm" style="margin-top:0.6rem;border-color:${l.c};color:${l.c};" onclick="markLangToday('${l.k}')">Mark Today Done ✓</button>`;
+    cards.appendChild(card);
+  });
+  // Vocab list
+  const vlist=document.getElementById('vocab-list');
+  if(!vocab.length){ vlist.innerHTML='<div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1rem 0;">Start learning. Add your first word above. 🗣</div>'; return; }
+  const grouped={amharic:vocab.filter(v=>v.lang==='amharic'),oromifa:vocab.filter(v=>v.lang==='oromifa')};
+  let html='';
+  ['amharic','oromifa'].forEach(l=>{
+    if(!grouped[l].length) return;
+    html+=`<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:0.75rem 0 0.4rem;">${l}</div>`;
+    html+=grouped[l].map((v,i)=>{
+      const idx=vocab.indexOf(v);
+      return `<div class="vocab-item">
+        <span class="vocab-word">${v.word}</span>
+        <span class="vocab-mean">${v.mean}${v.pron?` · <em style="font-size:0.6rem;color:var(--text3);">${v.pron}</em>`:''}</span>
+        <button class="vocab-del" onclick="delVocab(${idx})">✕</button>
+      </div>`;
+    }).join('');
+  });
+  vlist.innerHTML=html;
+}
+function toggleLang(lang,date){ const days=langProgress[lang]||[]; const idx=days.indexOf(date); if(idx>-1) days.splice(idx,1); else days.push(date); langProgress[lang]=days; S.set('langProgress',langProgress); renderLanguage(); }
+function markLangToday(lang){ const today=new Date().toISOString().split('T')[0]; const days=langProgress[lang]||[]; if(!days.includes(today)) days.push(today); langProgress[lang]=days; S.set('langProgress',langProgress); renderLanguage(); }
+function calcStreak(days){ if(!days.length) return 0; const sorted=[...days].sort().reverse(); let streak=0; let d=new Date(); for(let i=0;i<365;i++){ const ds=d.toISOString().split('T')[0]; if(sorted.includes(ds)) streak++; else if(streak>0) break; d.setDate(d.getDate()-1); } return streak; }
+function addVocab(){ const w=document.getElementById('vocab-word').value.trim(); if(!w) return; vocab.push({lang:document.getElementById('vocab-lang').value,word:w,mean:document.getElementById('vocab-mean').value.trim(),pron:document.getElementById('vocab-pron').value.trim()}); S.set('vocab',vocab); ['vocab-word','vocab-mean','vocab-pron'].forEach(id=>document.getElementById(id).value=''); renderLanguage(); }
+function delVocab(i){ if(confirm('Delete word?')){ vocab.splice(i,1); S.set('vocab',vocab); renderLanguage(); } }
+
+// =================== RELATIONSHIP ===================
+let relLog=S.get('relLog',[]);
+function renderRelationship(){
+  const thisMonth=relLog.filter(r=>{ const d=new Date(r.date); const n=new Date(); return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear(); });
+  document.getElementById('rel-stats').innerHTML=`
+    <div class="stat"><div class="stat-lbl">Total Gestures</div><div class="stat-val">${relLog.length}</div></div>
+    <div class="stat"><div class="stat-lbl">This Month</div><div class="stat-val">${thisMonth.length}</div></div>
+    <div class="stat"><div class="stat-lbl">Goal</div><div class="stat-val">4+</div><div class="stat-sub">per month</div></div>
+    <div class="stat"><div class="stat-lbl">Status</div><div class="stat-val" style="font-size:0.85rem;">${thisMonth.length>=4?'✅ On track':'⚡ Push more'}</div></div>`;
+  const list=document.getElementById('rel-list');
+  if(!relLog.length){ list.innerHTML='<div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1.5rem 0;">No gestures logged yet. Be intentional. 💍</div>'; return; }
+  list.innerHTML=[...relLog].reverse().map((r,ri)=>{
+    const i=relLog.length-1-ri;
+    return `<div class="rel-item">
+      <div class="rel-icon">${r.icon}</div>
+      <div class="rel-info">
+        <div class="rel-act">${r.act}</div>
+        <div class="rel-date">${r.date}</div>
+        ${r.note?`<div class="rel-note">${r.note}</div>`:''}
+      </div>
+      <button class="rel-del" onclick="delRel(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+function addRelGesture(){ const act=document.getElementById('rel-act').value.trim(); if(!act) return; relLog.push({act,icon:document.getElementById('rel-type').value,date:document.getElementById('rel-date').value||new Date().toISOString().split('T')[0],note:document.getElementById('rel-note').value.trim()}); S.set('relLog',relLog); ['rel-act','rel-note'].forEach(id=>document.getElementById(id).value=''); renderRelationship(); }
+function delRel(i){ if(confirm('Delete entry?')){ relLog.splice(i,1); S.set('relLog',relLog); renderRelationship(); } }
+
+// =================== JOURNAL ===================
+let journalEntries=S.get('journalEntries',{});
+let journalDate=new Date().toISOString().split('T')[0];
+let currentMood='';
+
+function formatJDate(d){ const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const dt=new Date(d+'T12:00:00'); return `${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}`; }
+function jPrev(){ const d=new Date(journalDate+'T12:00:00'); d.setDate(d.getDate()-1); journalDate=d.toISOString().split('T')[0]; loadJournal(); }
+function jNext(){ const d=new Date(journalDate+'T12:00:00'); d.setDate(d.getDate()+1); journalDate=d.toISOString().split('T')[0]; loadJournal(); }
+function setMood(btn){ document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); currentMood=btn.dataset.m; }
+function loadJournal(){
+  document.getElementById('j-date-disp').textContent=formatJDate(journalDate);
+  const entry=journalEntries[journalDate];
+  document.getElementById('j-entry').value=entry?entry.text:'';
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));
+  currentMood=entry?entry.mood:'';
+  if(currentMood){ document.querySelectorAll('.mood-btn').forEach(b=>{ if(b.dataset.m===currentMood) b.classList.add('sel'); }); }
+  document.getElementById('j-saved-msg').textContent='';
+  renderJList();
+}
+function saveJournal(){
+  const text=document.getElementById('j-entry').value.trim(); if(!text) return;
+  journalEntries[journalDate]={text,mood:currentMood,date:journalDate};
+  S.set('journalEntries',journalEntries);
+  document.getElementById('j-saved-msg').textContent='Saved ✓';
+  setTimeout(()=>document.getElementById('j-saved-msg').textContent='',2000);
+  renderJList();
+}
+function renderJList(){
+  const list=document.getElementById('j-list');
+  const entries=Object.values(journalEntries).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!entries.length){ list.innerHTML='<div style="font-size:0.68rem;color:var(--text3);text-align:center;padding:1rem 0;">No entries yet.</div>'; return; }
+  list.innerHTML=entries.map(e=>`<div class="j-item" onclick="loadEntry('${e.date}')">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+      <div class="j-item-date">${formatJDate(e.date)}</div>
+      <span class="j-item-mood">${e.mood}</span>
+    </div>
+    <div class="j-item-preview">${e.text}</div>
+  </div>`).join('');
+}
+function loadEntry(d){ journalDate=d; loadJournal(); document.querySelector('.card .card-title')&&window.scrollTo(0,0); }
+
+// =================== MONTHLY REVIEW ===================
+const REV_QS=[
+  {q:"Which goals did you move forward this month?",k:"goals_moved"},
+  {q:"Which goals did you neglect? Be honest.",k:"goals_neglected"},
+  {q:"What made things hard this month?",k:"hard"},
+  {q:"What's your single biggest win this month?",k:"win"},
+  {q:"Rate yourself this month (1–10)",k:"rating",type:"stars"},
+  {q:"What's your #1 priority for next month?",k:"priority"},
+  {q:"Did you prove something to yourself this month?",k:"proof"},
+];
+let reviewMonth=`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+let reviews=S.get('reviews',{});
+let currentRating=0;
+
+function formatRevMonth(m){ const [y,mo]=m.split('-'); const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${months[parseInt(mo)-1]} ${y}`; }
+function revPrev(){ const[y,m]=reviewMonth.split('-').map(Number); const d=new Date(y,m-2,1); reviewMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; loadReview(); }
+function revNext(){ const[y,m]=reviewMonth.split('-').map(Number); const d=new Date(y,m,1); reviewMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; loadReview(); }
+function loadReview(){
+  document.getElementById('rev-month-label').textContent=formatRevMonth(reviewMonth);
+  const saved=reviews[reviewMonth]||{};
+  currentRating=saved.rating||0;
+  const form=document.getElementById('review-form'); form.innerHTML='';
+  REV_QS.forEach(q=>{
+    const div=document.createElement('div'); div.className='review-q';
+    if(q.type==='stars'){
+      div.innerHTML=`<div class="review-q-text">${q.q}</div>
+        <div class="star-rating" id="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<span class="star${n<=currentRating?' lit':''}" onclick="setRating(${n})">★</span>`).join('')}</div>
+        <div style="font-size:0.62rem;color:var(--text2);" id="rating-label">${currentRating>0?currentRating+'/10':''}</div>`;
+    } else {
+      div.innerHTML=`<div class="review-q-text">${q.q}</div>
+        <textarea data-k="${q.k}" style="min-height:70px;">${saved[q.k]||''}</textarea>`;
+    }
+    form.appendChild(div);
+  });
+  document.getElementById('rev-saved-msg').textContent='';
+}
+function setRating(n){ currentRating=n; document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('lit',i<n)); document.getElementById('rating-label').textContent=n+'/10'; }
+function saveReview(){
+  const data={rating:currentRating};
+  document.querySelectorAll('[data-k]').forEach(el=>{ data[el.dataset.k]=el.value; });
+  reviews[reviewMonth]=data; S.set('reviews',reviews);
+  document.getElementById('rev-saved-msg').textContent='Saved ✓';
+  setTimeout(()=>document.getElementById('rev-saved-msg').textContent='',2000);
+}
+
+// =================== REMINDERS ===================
+const DEFAULT_REMINDERS=[
+  {n:"WAKE UP",t:"5:30 AM",note:"Water first. No phone for 10 mins.",fixed:true},
+  {n:"DEEP WORK 1 — INK LAB",t:"7:00 AM",note:"Phone in another room. Build.",fixed:true},
+  {n:"DEEP WORK 2",t:"9:15 AM",note:"Client outreach / income stream 2",fixed:true},
+  {n:"LUNCH",t:"12:00 PM",note:"Step away. No scrolling.",fixed:true},
+  {n:"RELATIONSHIP TIME",t:"5:00 PM",note:"One intentional act today.",fixed:true},
+  {n:"LANGUAGE LEARNING",t:"8:00 PM",note:"10 mins Amharic. Non-negotiable.",fixed:true},
+  {n:"DAILY REVIEW",t:"8:15 PM",note:"Did I move forward today?",fixed:true},
+  {n:"WIND DOWN",t:"8:45 PM",note:"No screens. Prepare for sleep.",fixed:true},
+  {n:"LIGHTS OUT",t:"10:30 PM",note:"7 hours sleep. Tomorrow starts now.",fixed:true},
+  {n:"SUNDAY PLANNING",t:"8:00 PM",note:"Every Sunday. 10 mins. 3 priorities.",fixed:true},
+];
+let customReminders=S.get('customReminders',[]);
+
+function renderReminders(){
+  const list=document.getElementById('reminders-list');
+  list.innerHTML=DEFAULT_REMINDERS.map(r=>`
+    <div class="rem-item">
+      <div class="rem-info">
+        <div class="rem-name">${r.n}</div>
+        <div class="rem-time">${r.t}</div>
+        <div class="rem-note">${r.note}</div>
+      </div>
+      <a href="tel:" style="text-decoration:none;">
+        <button class="btn btn-sm" onclick="alert('Open your phone Clock app → Alarm → Add: ${r.t} — ${r.n}')">Set Alarm</button>
+      </a>
+    </div>`).join('');
+  const clist=document.getElementById('custom-reminders');
+  if(!customReminders.length){ clist.innerHTML=''; return; }
+  clist.innerHTML=`<div class="card-title" style="margin-top:1rem;">Custom Reminders</div>`+customReminders.map((r,i)=>`
+    <div class="rem-item">
+      <div class="rem-info">
+        <div class="rem-name">${r.name}</div>
+        <div class="rem-time">${r.time}</div>
+        ${r.note?`<div class="rem-note">${r.note}</div>`:''}
+      </div>
+      <button class="rem-del" onclick="delReminder(${i})">✕</button>
+    </div>`).join('');
+}
+function addReminder(){ const name=document.getElementById('rem-name').value.trim(); if(!name) return; customReminders.push({name,time:document.getElementById('rem-time').value,note:document.getElementById('rem-note-in').value.trim()}); S.set('customReminders',customReminders); ['rem-name','rem-time','rem-note-in'].forEach(id=>document.getElementById(id).value=''); renderReminders(); }
+function delReminder(i){ customReminders.splice(i,1); S.set('customReminders',customReminders); renderReminders(); }
+
+// =================== RULES ===================
+const RULES=[
+  {n:"Rule 01",t:"The Never Miss Twice Law",c:"teal",b:"Missing one block is human. Missing two in a row is a new bad habit forming. The moment you slip, your ONLY job is to restart the very next scheduled block — no guilt, no spiral, just restart."},
+  {n:"Rule 02",t:"The 1-Hour Recovery Reset",c:"blue",b:"If you lose an entire day, run the Reset Protocol:\n• 20 mins fitness OR walk\n• 20 mins Ink Lab (open the file, do anything)\n• 20 mins planning (write 3 priorities)\nThat's it. Day reset."},
+  {n:"Rule 03",t:"Interruption Protocol",c:"amber",b:"• Unexpected call during Deep Work: write it down, assign to Admin block, return immediately.\n• Energy crash: 1:00 PM recovery walk first.\n• Feeling high during a block: do the 2-minute version. Open the file. Start something."},
+  {n:"Rule 04",t:"Priority Hierarchy",c:"teal",b:"When time is short:\n1st → Deep Work Block 1 (Ink Lab — always sacred)\n2nd → Sunday Planning Session\n3rd → Fitness\n4th → Language Learning\n5th → Everything else"},
+  {n:"Rule 05",t:"The Phone Protocol",c:"purple",b:"• 5:30–7:00 AM: Phone face down, only alarm allowed.\n• 7:00–11:00 AM: Phone in another room during Deep Work.\n• Admin block ONLY: social media, DMs, replies.\n• After 9:30 PM: Phone charging in another room."},
+  {n:"Rule 06",t:"The Morning Boundary",c:"red",b:"No highs before noon. Mornings belong to Galu Ink Lab. Evenings are yours — you earn them by showing up in the morning."},
+  {n:"Rule 07",t:"Weekly Slip Scoring",c:"amber",b:"Every Friday at 4:30 PM:\n• 7/7 = Perfect week.\n• 5–6/7 = Strong week.\n• 3–4/7 = Rough week — Run the Reset Protocol Sunday.\n• Below 3/7 = Find the ONE block that would have changed everything. Protect it next week."},
+  {n:"Rule 08",t:"Sunday Planning is Sacred",c:"teal",b:"Every Sunday 8:00 PM — exactly 10 minutes:\n• Step 1: Write your top 3 priorities (exactly 3).\n• Step 2: Check which goals need to be pushed.\n• Step 3: Ask: 'Did I prove something to myself last week?'"},
+  {n:"Rule 09",t:"Energy Management",c:"purple",b:"• 5:30 AM–12:00 PM: Peak → ALL Deep Work\n• 12:00–3:00 PM: Trough → Lunch, walk, admin\n• 3:00–6:00 PM: Rebound → Shallow work, personal growth\n• 6:00–10:30 PM: Wind down → Meals, language, sleep prep"},
+];
+function renderRules(){
+  const out=document.getElementById('rules-out'); out.innerHTML='';
+  RULES.forEach(r=>{
+    const div=document.createElement('div'); div.className='rule'; div.dataset.c=r.c;
+    div.innerHTML=`<div class="rule-hdr" onclick="this.closest('.rule').classList.toggle('open')">
+      <div><div class="rule-num">${r.n}</div><div class="rule-title">${r.t}</div></div>
+      <div class="rule-arr">▼</div></div>
+      <div class="rule-body">${r.b.replace(/\n/g,'<br>')}</div>`;
+    out.appendChild(div);
   });
 }
 
-// =================== RENDER NEXT STEPS ===================
-function renderNextSteps() {
-  const container = document.getElementById('next-steps');
-  container.innerHTML = '';
-  nextSteps.forEach((step, i) => {
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); cursor:pointer;';
-    row.innerHTML = `
-      <div style="width:20px; height:20px; border-radius:3px; border:1px solid ${nextStepsDone[i] ? 'var(--teal)' : 'var(--border)'}; background:${nextStepsDone[i] ? 'var(--teal)' : 'transparent'}; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--bg);">${nextStepsDone[i] ? '✓' : ''}</div>
-      <div style="font-size:0.68rem; color:${nextStepsDone[i] ? 'var(--text3)' : 'var(--text2)'}; text-decoration:${nextStepsDone[i] ? 'line-through' : 'none'}; line-height:1.6;">${step.text}</div>
-    `;
-    row.addEventListener('click', () => {
-      nextStepsDone[i] = !nextStepsDone[i];
-      renderNextSteps();
-    });
-    container.appendChild(row);
-  });
+// =================== SET DATES ===================
+function setDefaultDates(){
+  const today=new Date().toISOString().split('T')[0];
+  ['c-date','ex-date','rel-date','tx-date'].forEach(id=>{ const el=document.getElementById(id); if(el&&!el.value) el.value=today; });
 }
 
 // =================== INIT ===================
-renderSchedule();
-renderGoals();
-renderHabits();
-renderRules();
-renderNextSteps();
-
-// =================== PASSWORD ===================
-const HASH = "7c4e2f1b9d3a6e8f2c5b0a7d4e9f1c3b8a6d2e5f0c7b4a9d3e6f1c8b5a2d4e7f";
-
-function hashStr(s) {
-  // Simple deterministic hash for client-side check
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = Math.imul(31, h) + s.charCodeAt(i) | 0;
-  }
-  return Math.abs(h).toString(16).padStart(8,'0');
+function initApp(){
+  updateClock(); setInterval(updateClock,10000);
+  initQuote();
+  renderSchedule();
+  renderGoals();
+  renderHabits();
+  renderInkLabStats();
+  renderMoney();
+  renderWorkout();
+  renderLanguage();
+  renderRelationship();
+  loadJournal();
+  loadReview();
+  renderReminders();
+  renderRules();
+  setDefaultDates();
 }
 
-const CORRECT = hashStr("sBw2z%fnvP$rAj%xWAra");
-
-function checkPassword() {
-  const val = document.getElementById('pw-input').value;
-  const input = document.getElementById('pw-input');
-  const err = document.getElementById('pw-error');
-
-  if (hashStr(val) === CORRECT) {
-    // Correct — unlock
-    sessionStorage.setItem('galu_unlocked', '1');
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
-    err.textContent = '';
-  } else {
-    // Wrong — shake
-    input.classList.remove('shake');
-    void input.offsetWidth; // reflow to restart animation
-    input.classList.add('shake');
-    err.textContent = 'Incorrect password. Try again.';
-    input.value = '';
-    setTimeout(() => input.classList.remove('shake'), 400);
-  }
-}
-
-// Allow Enter key to submit
-document.getElementById('pw-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkPassword();
-});
-
-// Stay unlocked within same session
-if (sessionStorage.getItem('galu_unlocked') === '1') {
-  document.getElementById('lock-screen').style.display = 'none';
-  document.getElementById('app-content').style.display = 'block';
-}
+// Run if already unlocked
+if(document.getElementById('main').style.display==='block') initApp();
 </script>
-</div><!-- /app -->
-</div><!-- /app-content -->
 </body>
 </html>
